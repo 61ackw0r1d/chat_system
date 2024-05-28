@@ -23,7 +23,12 @@ class Audio_Server(threading.Thread):
         self.sock = None
         self.conn = None
         self.stream = None
-        self.p = pyaudio.PyAudio()  # 实例化PyAudio, 并于下面设置portaudio参数
+        self.p = pyaudio.PyAudio()
+
+        # 确保端口号高于 1024
+        if port <= 1024:
+            raise ValueError("Port number must be higher than 1024")
+
         self.setup_socket()
 
     def setup_socket(self):
@@ -48,36 +53,41 @@ class Audio_Server(threading.Thread):
 
     def run(self):
         print("Audio server starts...")
-        self.sock.bind(self.ADDR)
-        self.sock.listen(1)
-        self.conn, addr = self.sock.accept()
-        print("Remote Audio client successfully connected...")
-        data = b""
-        payload_size = struct.calcsize("L")
-        self.stream = self.p.open(format=FORMAT,
-                                  channels=CHANNELS,
-                                  rate=RATE,
-                                  output=True,
-                                  frames_per_buffer=CHUNK)
-        while True:
-            try:
+        try:
+            self.sock.bind(self.ADDR)
+            self.sock.listen(1)
+            self.conn, addr = self.sock.accept()
+            print("Remote Audio client successfully connected...")
+            data = b""
+            payload_size = struct.calcsize("L")
+            self.stream = self.p.open(format=FORMAT,
+                                      channels=CHANNELS,
+                                      rate=RATE,
+                                      output=True,
+                                      frames_per_buffer=CHUNK)
+            while True:
                 while len(data) < payload_size:
-                    data += self.conn.recv(81920)
+                    packet = self.conn.recv(81920)
+                    if not packet:
+                        raise ConnectionError("Connection closed by client")
+                    data += packet
                 packed_size = data[:payload_size]
                 data = data[payload_size:]
                 msg_size = struct.unpack("L", packed_size)[0]
                 while len(data) < msg_size:
-                    data += self.conn.recv(81920)
+                    packet = self.conn.recv(81920)
+                    if not packet:
+                        raise ConnectionError("Connection closed by client")
+                    data += packet
                 frame_data = data[:msg_size]
                 data = data[msg_size:]
                 frames = pickle.loads(frame_data)
                 for frame in frames:
                     self.stream.write(frame, CHUNK)
-            except Exception as e:
-                print(f"Audio server error: {e}")
-                break
-        self.close()
-
+        except Exception as e:
+            print(f"Audio server error: {e}")
+        finally:
+            self.close()
 
 class Audio_Server(threading.Thread):
     def __init__(self, port, version):
@@ -153,6 +163,11 @@ class Audio_Client(threading.Thread):
         self.sock = None
         self.stream = None
         self.p = pyaudio.PyAudio()
+
+        # 确保端口号高于 1024
+        if port <= 1024:
+            raise ValueError("Port number must be higher than 1024")
+
         self.setup_socket()
         print("Audio client starts...")
 

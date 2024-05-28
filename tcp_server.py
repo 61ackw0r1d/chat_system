@@ -6,8 +6,8 @@ import re
 
 
 # address='127.0.0.1'
-# address='192.168.31.142'
-address='192.168.31.103'
+address='192.168.31.142'
+# address='192.168.31.103'
 port=8000
 buffsize=1024
 s = socket(AF_INET, SOCK_STREAM)
@@ -21,7 +21,6 @@ client_list=[]  # 已登录的用户
 # todo:修改图标
 # todo:阅读代码
 # todo:上下线更新状态/数据库
-# todo:修改构件名
 
 user_list=[[201813347, 123456], [201813348, 123456], [201813349, 123456], [201813350, 123456], [201813351, 123456], [201813352,123456]]
 user_l=len(user_list)

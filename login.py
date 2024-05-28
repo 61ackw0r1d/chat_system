@@ -15,8 +15,8 @@ class Ui_MainWindow(object):
 
     def tcp_start(self):
         # address = '127.0.0.1'
-        # address = '192.168.31.142'
-        address = '192.168.31.90'
+        address = '192.168.31.142'
+        # address = '192.168.31.90'
         # address = '192.168.31.103'
         port = 8000
         self.buffsize = 1024

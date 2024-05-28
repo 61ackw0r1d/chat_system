@@ -129,9 +129,9 @@ class Ui_Dialog(object):
                         text = '          对方发起语音聊天请求, 已建立连接......'
                         self.textBrowser.append(text + "\n")
                         recvtext_ip = recvtext_list[0].replace("'", "")
-                        print('audio_client ready to start with:' + recvtext_ip)
+                        print('audio_client ready to start with:' + recvtext_ip[0:-6])
                         au = Audio_Server(4568, 4)
-                        au1 = Audio_Client(str(recvtext_ip[0:9]), 4567, 4)
+                        au1 = Audio_Client(str(recvtext_ip[0:-6]), 4567, 4)
                         self.re = threading.Thread(target=au.run)  # 创建线程
                         self.re1 = threading.Thread(target=au1.run)  # 创建线程
                         self.re.setDaemon(True)
@@ -149,9 +149,9 @@ class Ui_Dialog(object):
                     text = '          语音聊天已开始......'
                     self.textBrowser.append(text + "\n")
                     recvtext_ip = recvtext_list[0].replace("'", "")
-                    print('audio_client ready to start with:' + recvtext_ip[0:9])
+                    print('audio_client ready to start with:' + recvtext_ip[0:-6])
                     self.au = Audio_Server(4567, 4)
-                    self.au1 = Audio_Client(str(recvtext_ip[0:9]), 4568, 4)
+                    self.au1 = Audio_Client(str(recvtext_ip[0:-6]), 4568, 4)
                     self.re3 = threading.Thread(target=self.au.run)  # 创建线程
                     self.re4 = threading.Thread(target=self.au1.run)  # 创建线程
                     # self.re3.setDaemon(True)

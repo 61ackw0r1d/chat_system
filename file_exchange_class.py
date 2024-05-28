@@ -60,16 +60,16 @@ class file_recv:
         ''' 创建socket对象'''
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        '''获取本地'''
-        # self.host = socket.gethostbyname(socket.gethostname())
-        # print('self.host' + self.host)
-        self.host = '127.0.0.1'
+        # '''获取本地'''
+        # # self.host = socket.gethostbyname(socket.gethostname())
+        # # print('self.host' + self.host)
+        # self.host = '127.0.0.1'
 
         '''设置端口'''
         self.port = 7788
 
         '''绑定地址'''
-        self.server.bind((self.host, self.port))
+        self.server.bind((self.ip, self.port))
 
         '''设置最大连接数， 超过后排队'''
         self.server.listen(12)

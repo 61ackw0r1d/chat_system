@@ -124,6 +124,9 @@ class Ui_Dialog(object):
                 i = i + 1
                 print('receive message list is:')
                 print(recvtext_list)
+
+                #todo: 重构代码为不同方法
+
                 if recvtext_list[length-1] == 'voicechat_request':
                     if recvtext_list[length-2] != 'end':
                         text = '          对方发起语音聊天请求, 已建立连接......'
@@ -161,9 +164,11 @@ class Ui_Dialog(object):
 
                 elif recvtext_list[length-1] == 'filesend_request':
                     self.textBrowser.append('          准备接收对方发来的文件......\n')
-                    recvtext_ip = recvtext_list[0].replace("'", "")
                     fl = file_recv()
                     re = MyThread(fl.server100)  # 创建线程
+
+                    #todo:仿照语音修改代码，启用file_exchange里的类进行实现
+
                     re.start()
                     re.join()
                     recv_result = re.get_result()
@@ -174,8 +179,7 @@ class Ui_Dialog(object):
                 elif recvtext_list[length-1] == 'filesend_accept':
                     self.textBrowser.append('          准备发送文件......\n')
                     recvtext_ip = recvtext_list[0].replace("'", "")
-                    print(recvtext_ip)
-                    fl = file_send(str(recvtext_ip[0:9]), 7788)
+                    fl = file_send(str(recvtext_ip[0:-6]), 7788)
                     re1 = MyThread(fl.file_send_start)  # 创建线程
                     re1.start()
                     re1.join()

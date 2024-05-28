@@ -128,8 +128,8 @@ class Ui_Dialog(object):
                             self.textBrowser.append(text + "\n")
                             recvtext_ip = recvtext_list[0].replace("'", "")
                             print('audio_client ready to start with:' + recvtext_ip)
-                            au = Audio_Server(8003, 4)
-                            au1 = Audio_Client(str(recvtext_ip[0:9]), 8004, 4)
+                            au = Audio_Server(4568, 4)
+                            au1 = Audio_Client(str(recvtext_ip[0:9]), 4567, 4)
                             self.re = threading.Thread(target=au.run)  # 创建线程
                             self.re1 = threading.Thread(target=au1.run)  # 创建线程
                             self.re.setDaemon(True)

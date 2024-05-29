@@ -60,6 +60,7 @@ def getinfo(db):
             name_list.append(name)
         group_list.append(name_list)
         print(group_list)
+        cursor.close()
     else:
         print("err")
     # print(user_list)
@@ -78,6 +79,7 @@ def isUser(db, logindata):
     cursor.execute(query, (ID, password))
     result = cursor.fetchall()
     # print("isUser函数中:", result)
+    cursor.close()
     return result
 
 # 改变用户在线状态
@@ -89,6 +91,7 @@ def change_alive(db, logindata):
         query = "update ast_chatsystem.user set is_online=NOT is_online where ID = %s"
         cursor.execute(query, (ID,))
         db.commit()
+        cursor.close()
         print("修改成功")
     except Exception as e:
         print(e)
@@ -97,16 +100,19 @@ def signup_db(regeisterdata,clientsock):
     db=connect_to_mysql()
     cursor = db.cursor()
     ID = regeisterdata[1]
+    password = regeisterdata[2]
     query = "select * from ast_chatsystem.user where ID=%s"
-    cursor.execute(query, (ID))
+    cursor.execute(query, (ID,))
     result = cursor.fetchall()
     # print("isUser函数中:", result)
     if result:
         signup_bkinfo="false"
         clientsock.send(signup_bkinfo.encode())
     else:
-        query="INSERT INTO user (ID, password) VALUES (%s, %s)", (regeisterdata[1],regeisterdata[2])
-        cursor.execute(query)
+        query="INSERT INTO user (ID, password) VALUES (%s, %s)"
+        cursor.execute(query, (ID,password))
+        db.commit()
+        cursor.close()
         signup_bkinfo = "true"
         clientsock.send(signup_bkinfo.encode())
 
@@ -327,6 +333,7 @@ if __name__=="__main__":
     s = socket(AF_INET, SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     address = s.getsockname()[0]
+    print("服务端运行中，ip:"+address)
     port = 8000
     s = socket(AF_INET, SOCK_STREAM)
     s.bind((address, port))

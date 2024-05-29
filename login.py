@@ -16,8 +16,8 @@ class Ui_MainWindow(QWidget):
 
     def tcp_start(self):
         # address = '127.0.0.1'
-        # address = '192.168.31.142'
-        address = '192.168.31.90'
+        address = '192.168.31.142'
+        # address = '192.168.31.90'
         port = 8000
         self.buffsize = 1024
         self.s = socket(AF_INET, SOCK_STREAM)
@@ -156,12 +156,12 @@ class RegistrationForm(QWidget):
         layout.addRow(self.check_label, self.check_input)
 
         self.submit_button = QPushButton('注册')
-        self.submit_button.clicked.connect(self.register_user)
+        self.submit_button.clicked.connect(self.signup_user)
         layout.addWidget(self.submit_button)
 
         self.setLayout(layout)
 
-    def register_user(self):
+    def signup_user(self):
         user_id = self.id_input.text()
         password = self.password_input.text()
         check=self.check_input.text()
@@ -178,18 +178,17 @@ class RegistrationForm(QWidget):
         else:QMessageBox.warning(self, '输入错误', '两次输入的密码不一致')
 
     def signup_recv(self):
-        print("接收中")
         recv_info = self.s.recv(self.buffsize).decode('utf-8')
         print(recv_info)
         if str(recv_info) == 'true':
-            QMessageBox.information(self.MainWindow, '注册', '注册成功!', QMessageBox.Ok | QMessageBox.Close,
-                                    QMessageBox.Close)
-            login_ui.hide()
-            QQmain_ui.show()
-            ui1.label.setText(self.user)
+            print("注册成功")
+            QMessageBox.information(self, '注册', '注册成功!')
+            self.id_input.clear()
+            self.password_input.clear()
+            self.check_input.clear()
         elif str(recv_info) == 'false':
-            QMessageBox.information(self.MainWindow, '失败', '此账号已注册!', QMessageBox.Ok | QMessageBox.Close,
-                                    QMessageBox.Close)
+            print("注册失败")
+            QMessageBox.warning(self, '失败', '此账号已注册!')
 
 
 if __name__ == "__main__":

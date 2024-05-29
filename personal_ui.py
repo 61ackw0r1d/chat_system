@@ -113,6 +113,52 @@ class Ui_Dialog(object):
             self.textEdit.clear()
         self.sendButton.clicked.connect(send)
 
+    def voicechat_requset(self,recvtext_ip,flag):
+        if flag != 'end':
+            text = '          对方发起语音聊天请求, 已建立连接......'
+            self.textBrowser.append(text + "\n")
+            print('audio_client ready to start with:' + recvtext_ip)
+            self.au = Audio_Server(4568, 4)
+            self.au1 = Audio_Client(str(recvtext_ip), 4567, 4)
+            self.re = threading.Thread(target=self.au.run)  # 创建线程
+            self.re1 = threading.Thread(target=self.au1.run)  # 创建线程
+            self.re.setDaemon(True)
+            self.re1.setDaemon(True)
+            self.re.start()
+            self.re1.start()
+        else:
+            text = '          对方已结束语音聊天......'
+            self.textBrowser.append(text + "\n")
+            stop_thread(self.re)
+            del self.au
+            del self.au1
+
+    def voicechat_receive(self,recvtext_ip):
+        text = '          语音聊天已开始......'
+        self.textBrowser.append(text + "\n")
+        print('audio_client ready to start with:' + recvtext_ip)
+        self.au = Audio_Server(4567, 4)
+        self.au1 = Audio_Client(str(recvtext_ip), 4568, 4)
+        self.re3 = threading.Thread(target=self.au.run)  # 创建线程
+        self.re4 = threading.Thread(target=self.au1.run)  # 创建线程
+        self.re3.start()
+        self.re4.start()
+
+    def filesend_request(self,recvtext_ip):
+        self.textBrowser.append('          准备接收对方发来的文件......\n')
+        fl = file_recv(ip=recvtext_ip)
+        recv_result = fl.server100()
+        print('My sendresult is : ' + str(recv_result))
+        if recv_result == 0:
+            self.textBrowser.append('          文件接收完毕......\n')
+
+    def filesend_accept(self,recvtext_ip):
+        self.textBrowser.append('          准备发送文件......\n')
+        fl = file_send(str(recvtext_ip), 7788)
+        send_result=fl.file_send_start()
+        if send_result == 0:
+            self.textBrowser.append('          文件发送完毕......\n')
+
     def pel_recv(self):
         buffsize = 1024
         def recv():
@@ -124,68 +170,20 @@ class Ui_Dialog(object):
                 i = i + 1
                 print('receive message list is:')
                 print(recvtext_list)
-
+                recvtext_ip = recvtext_list[0].replace("'", "").split(' ')[0]
                 #todo: 重构代码为不同方法
 
                 if recvtext_list[length-1] == 'voicechat_request':
-                    if recvtext_list[length-2] != 'end':
-                        text = '          对方发起语音聊天请求, 已建立连接......'
-                        self.textBrowser.append(text + "\n")
-                        recvtext_ip = recvtext_list[0].replace("'", "")
-                        print('audio_client ready to start with:' + recvtext_ip[0:-6])
-                        au = Audio_Server(4568, 4)
-                        au1 = Audio_Client(str(recvtext_ip[0:-6]), 4567, 4)
-                        self.re = threading.Thread(target=au.run)  # 创建线程
-                        self.re1 = threading.Thread(target=au1.run)  # 创建线程
-                        self.re.setDaemon(True)
-                        self.re1.setDaemon(True)
-                        self.re.start()
-                        self.re1.start()
-                    else:
-                        text = '          对方已结束语音聊天......'
-                        self.textBrowser.append(text + "\n")
-                        stop_thread(self.re)
-                        del au
-                        del au1
+                    self.voicechat_requset(recvtext_ip,recvtext_list[length-2])
 
                 elif recvtext_list[length-1] == 'voicechat_accept':
-                    text = '          语音聊天已开始......'
-                    self.textBrowser.append(text + "\n")
-                    recvtext_ip = recvtext_list[0].replace("'", "")
-                    print('audio_client ready to start with:' + recvtext_ip[0:-6])
-                    self.au = Audio_Server(4567, 4)
-                    self.au1 = Audio_Client(str(recvtext_ip[0:-6]), 4568, 4)
-                    self.re3 = threading.Thread(target=self.au.run)  # 创建线程
-                    self.re4 = threading.Thread(target=self.au1.run)  # 创建线程
-                    # self.re3.setDaemon(True)
-                    # self.re4.setDaemon(True)
-                    self.re3.start()
-                    self.re4.start()
+                    self.voicechat_receive(recvtext_ip)
 
                 elif recvtext_list[length-1] == 'filesend_request':
-                    self.textBrowser.append('          准备接收对方发来的文件......\n')
-                    fl = file_recv()
-                    re = MyThread(fl.server100)  # 创建线程
-
-                    #todo:仿照语音修改代码，启用file_exchange里的类进行实现
-
-                    re.start()
-                    re.join()
-                    recv_result = re.get_result()
-                    print('My sendresult is : ' + str(recv_result))
-                    if recv_result == 0 :
-                        self.textBrowser.append('          文件接收完毕......\n')
+                    self.filesend_request(recvtext_ip)
 
                 elif recvtext_list[length-1] == 'filesend_accept':
-                    self.textBrowser.append('          准备发送文件......\n')
-                    recvtext_ip = recvtext_list[0].replace("'", "")
-                    fl = file_send(str(recvtext_ip[0:-6]), 7788)
-                    re1 = MyThread(fl.file_send_start)  # 创建线程
-                    re1.start()
-                    re1.join()
-                    send_result = re1.get_result()
-                    if send_result == 0 :
-                        self.textBrowser.append('          文件发送完毕......\n')
+                    self.filesend_accept(recvtext_ip)
 
                 else:
                     self.textBrowser.append(recvtext + "\n")

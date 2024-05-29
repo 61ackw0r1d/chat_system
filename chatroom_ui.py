@@ -124,15 +124,15 @@ class Ui_MainWindow(object):
 
         #todo: 修改文案
         item = self.listWidget.item(0)
-        item.setText(_translate("MainWindow", "201813347"))
+        item.setText(_translate("MainWindow", "2021201501"))
         item = self.listWidget.item(1)
-        item.setText(_translate("MainWindow", "201813348"))
+        item.setText(_translate("MainWindow", "2021201502"))
         item = self.listWidget.item(2)
-        item.setText(_translate("MainWindow", "201813349"))
+        item.setText(_translate("MainWindow", "2021201503"))
         item = self.listWidget.item(3)
-        item.setText(_translate("MainWindow", "201813350"))
+        item.setText(_translate("MainWindow", "2021201504"))
         item = self.listWidget.item(4)
-        item.setText(_translate("MainWindow", "201813351"))
+        item.setText(_translate("MainWindow", "2021201505"))
 
         self.listWidget.setSortingEnabled(__sortingEnabled)
         self.label.setText(_translate("MainWindow", "群聊人员："))

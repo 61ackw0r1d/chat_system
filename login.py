@@ -114,10 +114,8 @@ class Ui_MainWindow(object):
             login_ui.hide()
             QQmain_ui.show()
             ui1.label.setText(self.user)
-        elif str(recv_info) == 'false-user':
-            QMessageBox.information(self.MainWindow, '失败', '登录失败，无此账号!!', QMessageBox.Ok | QMessageBox.Close,QMessageBox.Close)
-        elif str(recv_info)=='false-pw':
-            QMessageBox.information(self.MainWindow, '失败', '登录失败，密码错误!!', QMessageBox.Ok | QMessageBox.Close,QMessageBox.Close)
+        elif str(recv_info) == 'false-id/pw':
+            QMessageBox.information(self.MainWindow, '失败', '登录失败，账号或密码错误!!', QMessageBox.Ok | QMessageBox.Close,QMessageBox.Close)
         elif str(recv_info)=='false-login':
             QMessageBox.information(self.MainWindow, '失败', '此账号已登录!', QMessageBox.Ok | QMessageBox.Close,QMessageBox.Close)
 

@@ -7,7 +7,6 @@ import re
 import mysql.connector
 
 
-
 # address='127.0.0.1'
 # address='192.168.31.142'
 address='192.168.31.90'
@@ -25,6 +24,7 @@ user_list = []
 
 alive_user = 0
 group_list = []
+# 已经在线的用户
 user_client = []
 # todo:修改数据为数据库文件
 # todo:修改非服务器的接收信息处理
@@ -78,65 +78,47 @@ def getinfo(db):
 
 # db.close()
 
+def isUser(db, logindata):
+    print("in isUser")
+    cursor = db.cursor()
+    print(logindata)
+    ID = logindata[1]
+    password = logindata[2]
+    query = "select * from ast_chatsystem.user where ID=%s and password=%s"
+    cursor.execute(query, (ID, password))
+    result = cursor.fetchall()
+    print("isUser函数中:", result)
+    return result
 
-def login(logindata, clientsock):
-    getinfo(connect_to_mysql())
+def login_db(logindata, clientsock):
+    db = connect_to_mysql()
+    getinfo(db)
+    res = isUser(db, logindata)
+    # print(res[0][2])
     user_l = len(user_list)
-    for x in range(0,user_l):
-        print("登录请求"+str(logindata[1]))
-        if len(user_client)>=1:
-            ul=len(user_client)
-
-            if str(user_list[x][0])==str(logindata[1]) and str(user_list[x][1])!=str(logindata[2]):
-                login_bkinfo = 'false-pw'
-                clientsock.send(login_bkinfo.encode())
-                break
-            elif str(user_list[x][0])==str(logindata[1]) and str(user_list[x][1])==str(logindata[2]):
-                for user_cl in range(0, ul):
-                    if str(user_client[user_cl][0]) == str(logindata[1]):
-                        login_bkinfo = 'false-login'
-                        clientsock.send(login_bkinfo.encode())
-                        break
-                    elif user_cl == ul - 1:
-                        usercl=[]
-                        usercl.append(logindata[1])
-                        usercl.append(clientsock)
-                        login_bkinfo = 'true'
-                        user_client.append(usercl)
-                        print(user_client)
-
-                        clientsock.send(login_bkinfo.encode())
-                break
-            elif x==user_l-1:
-                login_bkinfo = 'false-user'
-                clientsock.send(login_bkinfo.encode())
-
+    # 非空则代表数据库中有所查找的用户
+    if res:
+        # res[2]是数据库中对应user_alive属性
+        if res[0][2]:
+            # 在线
+            login_bkinfo = 'false-login'
+            clientsock.send(login_bkinfo.encode())
         else:
-
-            if str(user_list[x][0])==str(logindata[1]) and str(user_list[x][1])!=str(logindata[2]):
-                login_bkinfo = 'false-pw'
-                clientsock.send(login_bkinfo.encode())
-                break
-            elif str(user_list[x][0])==str(logindata[1]) and str(user_list[x][1])==str(logindata[2]):
-                usercl=[]
-                usercl.append(logindata[1])
-                usercl.append(clientsock)
-                login_bkinfo = 'true'
-                user_client.append(usercl)
-                print(user_client[0][1])
-
-                '''p1 = re.compile(r'[(](.*?)[)]', re.S)  # 正则表达式提取客户端的地址
-                list = re.findall(p1, str(user_client[0][1]))
-                print(list[1])
-                list1 = list[1].split(',')
-                print(list1[0])'''
+            # 不在线就能登录进去
+            usercl = []
+            usercl.append(logindata[1])
+            usercl.append(clientsock)
+            login_bkinfo = 'true'
+            user_client.append(usercl)
+            print(user_client)
+            clientsock.send(login_bkinfo.encode())
+    else:
+        # 数据库查不到
+        login_bkinfo = 'false-id/pw'
+        clientsock.send(login_bkinfo.encode())
 
 
-                clientsock.send(login_bkinfo.encode())
-                break
-            elif x==user_l-1:
-                login_bkinfo = 'false-user'
-                clientsock.send(login_bkinfo.encode())
+
 
 
 def tcplink(clientsock, clientaddress):
@@ -146,7 +128,7 @@ def tcplink(clientsock, clientaddress):
         recvdata_list = recvdata.split('$%')  # 信息间隔符为空格
         print(recvdata_list)
         if str(recvdata_list[0]) == 'login':  # 处理登录消息
-            login(recvdata_list, clientsock)
+            login_db(recvdata_list, clientsock)
 
         elif str(recvdata_list[0]) == 'wechat_req':  # 处理群聊消息
             for y in range(0, group_l):

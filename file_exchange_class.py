@@ -59,7 +59,7 @@ class file_recv:
             os.mkdir(self.dirsave)
         ''' 创建socket对象'''
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.ip = ip
+        self.host = "192.168.31.90"
         # '''获取本地'''
         # # self.host = socket.gethostbyname(socket.gethostname())
         # # print('self.host' + self.host)
@@ -69,7 +69,7 @@ class file_recv:
         self.port = 7788
 
         '''绑定地址'''
-        self.server.bind((self.ip, self.port))
+        self.server.bind((self.host, self.port))
 
         '''设置最大连接数， 超过后排队'''
         self.server.listen(12)

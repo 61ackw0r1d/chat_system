@@ -3,11 +3,14 @@
 from socket import *
 import threading
 import re
+# from coonect_mysql import connect_to_mysql
+import mysql.connector
+
 
 
 # address='127.0.0.1'
-address='192.168.31.142'
-# address='192.168.31.103'
+# address='192.168.31.142'
+address='192.168.31.90'
 port=8000
 buffsize=1024
 s = socket(AF_INET, SOCK_STREAM)
@@ -16,20 +19,69 @@ s.listen(10)     #最大连接数
 
 client_list=[]  # 已登录的用户
 
+
+
+user_list = []
+
+alive_user = 0
+group_list = []
+user_client = []
 # todo:修改数据为数据库文件
 # todo:修改非服务器的接收信息处理
 # todo:修改图标
 # todo:阅读代码
 # todo:上下线更新状态/数据库
 
-user_list=[[201813347, 123456], [201813348, 123456], [201813349, 123456], [201813350, 123456], [201813351, 123456], [201813352,123456]]
-user_l=len(user_list)
-user_client=[]
-group_list=[['信息论群'], ['微机原理群'], ['通信电子线路群'], ['通信原理群']]
+
+
+def connect_to_mysql():
+    try:
+        # 创建数据库连接
+        db = mysql.connector.connect(
+            host="localhost",  # MySQL 服务器地址
+            user="root",   # 用户名
+            password="123456",  # 密码
+            database="ast_chatsystem"  # 数据库名称
+        )
+        # 创建游标对象，用于执行 SQL 查询
+        print("数据库连接成功！")
+        return db
+    except mysql.connector.Error as err:
+        print(f"数据库连接失败：{err}")
+        return None
+
+
+def getinfo(db):
+    global alive_user
+    if db != None:
+        cursor = db.cursor()
+        cursor.execute("select * from ast_chatsystem.user")
+        result = cursor.fetchall()
+        for row in result:
+            id, password, is_alive = row
+            user_list.append((id, password))
+            if is_alive:
+               alive_user += 1
+        cursor.execute("select * from ast_chatsystem.group")
+        result = cursor.fetchall()
+        name_list = []
+        for row in result:
+            name, id = row
+            name_list.append(name)
+        group_list.append(name_list)
+        print(group_list)
+    else:
+        print("err")
+    # print(user_list)
+    # user_l = len(user_list)
+    print("###", alive_user)
+
+# db.close()
 
 
 def login(logindata, clientsock):
-
+    getinfo(connect_to_mysql())
+    user_l = len(user_list)
     for x in range(0,user_l):
         print("登录请求"+str(logindata[1]))
         if len(user_client)>=1:

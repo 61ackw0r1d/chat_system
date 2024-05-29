@@ -8,9 +8,12 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
 import chatroom_ui
 import personal_ui
 from Dialog_add import Ui_Dialog
+from tcp_server import connect_to_mysql, change_alive
+
 
 menu_ui = QtWidgets.QWidget()
 ui4 = Ui_Dialog()
@@ -175,7 +178,9 @@ class Ui_MainWindowt(object):
         #MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.closeButton.clicked.connect(MainWindow.close)
+        self.closeButton.clicked.connect(self.closeMainwindow_and_changeAlive)
+
+
         self.friendButton.clicked.connect(self.listWidget.hide)
         self.groupButton.clicked.connect(self.listWidget.show)
         self.friendButton.clicked.connect(self.treeWidget.show)
@@ -185,6 +190,14 @@ class Ui_MainWindowt(object):
         self.listWidget.itemClicked.connect(self.group_req)
         self.treeWidget.itemClicked.connect(self.personal)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+
+
+    def closeMainwindow_and_changeAlive(self):
+        self.MainWindow.close()
+        # self.close()
+        db = connect_to_mysql()
+        change_alive(db, ("",self.label.text(),""))
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

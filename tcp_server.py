@@ -6,16 +6,6 @@ import re
 # from coonect_mysql import connect_to_mysql
 import mysql.connector
 
-
-# address='127.0.0.1'
-# address='192.168.31.142'
-address='192.168.31.90'
-port=8000
-buffsize=1024
-s = socket(AF_INET, SOCK_STREAM)
-s.bind((address,port))
-s.listen(10)     #最大连接数
-
 client_list=[]  # 已登录的用户
 
 
@@ -38,8 +28,8 @@ def connect_to_mysql():
     try:
         # 创建数据库连接
         db = mysql.connector.connect(
-            host="localhost",  # MySQL 服务器地址
-            user="root",   # 用户名
+            host="192.168.31.90",  # MySQL 服务器地址
+            user="chat",   # 用户名
             password="123456",  # 密码
             database="ast_chatsystem"  # 数据库名称
         )
@@ -79,16 +69,43 @@ def getinfo(db):
 # db.close()
 
 def isUser(db, logindata):
-    print("in isUser")
+    # print("in isUser")
     cursor = db.cursor()
-    print(logindata)
+    # print(logindata)
     ID = logindata[1]
     password = logindata[2]
     query = "select * from ast_chatsystem.user where ID=%s and password=%s"
     cursor.execute(query, (ID, password))
     result = cursor.fetchall()
-    print("isUser函数中:", result)
+    # print("isUser函数中:", result)
     return result
+
+# 改变用户在线状态
+def change_alive(db, logindata):
+    try:
+        cursor = db.cursor()
+        ID = logindata[1]
+        print(ID)
+        query = "update ast_chatsystem.user set is_online=NOT is_online where ID = %s"
+        cursor.execute(query, (ID,))
+        db.commit()
+        print("修改成功")
+    except Exception as e:
+        print(e)
+
+def regeister_db(regeisterdata,clientsock):
+    db=connect_to_mysql()
+    cursor = db.cursor()
+    ID = regeisterdata[1]
+    query = "select * from ast_chatsystem.user where ID=%s"
+    cursor.execute(query, (ID))
+    result = cursor.fetchall()
+    # print("isUser函数中:", result)
+    if result:
+        return False
+    else:
+        query="INSERT INTO user (ID, password) VALUES (%s, %s)", (regeisterdata[1],regeisterdata[2])
+        cursor.execute(query)
 
 def login_db(logindata, clientsock):
     db = connect_to_mysql()
@@ -112,24 +129,24 @@ def login_db(logindata, clientsock):
             user_client.append(usercl)
             print(user_client)
             clientsock.send(login_bkinfo.encode())
+
+            change_alive(db, logindata)        # 修改为在线
     else:
         # 数据库查不到
         login_bkinfo = 'false-id/pw'
         clientsock.send(login_bkinfo.encode())
 
 
-
-
-
 def tcplink(clientsock, clientaddress):
     group_l = len(group_list)
     while True:
-        recvdata = clientsock.recv(buffsize).decode('utf-8')
+        recvdata = clientsock.recv(1024).decode('utf-8')
         recvdata_list = recvdata.split('$%')  # 信息间隔符为空格
         print(recvdata_list)
         if str(recvdata_list[0]) == 'login':  # 处理登录消息
             login_db(recvdata_list, clientsock)
-
+        elif str(recvdata_list[0]) == 'signup':
+            signup_db(recvdata_list, clientsock)
         elif str(recvdata_list[0]) == 'wechat_req':  # 处理群聊消息
             for y in range(0, group_l):
                 if str(group_list[y][0]) == str(recvdata_list[1]):
@@ -287,7 +304,7 @@ def tcplink(clientsock, clientaddress):
                     back = str(recvdata_list[2]) + '不在线'
                     clientsock.send(back.encode())
                 z = z + 1
-        elif str(recvdata_list[0]) == '':
+        else :
             print('无法识别：')
             print(recvdata_list[0])
             break
@@ -295,14 +312,30 @@ def tcplink(clientsock, clientaddress):
     clientsock.close()
     del client_list[-1]
 
+if __name__=="__main__":
+    from netifaces import interfaces, ifaddresses, AF_INET
 
-while True:
-    clientsock, clientaddress = s.accept()
-    client_list.append(clientsock)
-    print('connect from:', clientaddress)   # clientaddress 包含IP与端口
-    t = threading.Thread(target=tcplink, args=(clientsock,clientaddress))  #新创建的线程
-    t.start()
-# s.close()
+    ifaceName = interfaces()[2]
+    # address = [i['addr'] for i in ifaddresses(ifaceName).setdefault(AF_INET, [{'addr': 'No IP addr'}])][0]
+
+    # address='127.0.0.1'
+    # address='192.168.31.142'
+    # address = '192.168.31.90'
+    s = socket(AF_INET, SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    address = s.getsockname()[0]
+    port = 8000
+    s = socket(AF_INET, SOCK_STREAM)
+    s.bind((address, port))
+    s.listen(10)  # 最大连接数
+
+    while True:
+        clientsock, clientaddress = s.accept()
+        client_list.append(clientsock)
+        print('connect from:', clientaddress)   # clientaddress 包含IP与端口
+        t = threading.Thread(target=tcplink, args=(clientsock,clientaddress))  #新创建的线程
+        t.start()
+    # s.close()
 
 
 

@@ -63,10 +63,9 @@ class file_recv:
         # self.host = socket.gethostbyname(socket.gethostname())
         # print('self.host' + self.host)
         # self.host = '127.0.0.1'
-        from netifaces import interfaces, ifaddresses, AF_INET
-        ifaceName = interfaces()[2]
-        self.host = [i['addr'] for i in ifaddresses(ifaceName).setdefault(AF_INET, [{'addr': 'No IP addr'}])][0]
-
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        self.host = s.getscockname()[0]
         '''设置端口'''
         self.port = 7788
 

@@ -7,16 +7,16 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtWidgets import QApplication, QWidget, QFormLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 from socket import *
+import sys
 
 
-class Ui_MainWindow(object):
+class Ui_MainWindow(QWidget):
 
     def tcp_start(self):
         # address = '127.0.0.1'
-        # address = '192.168.31.142'
-        address = '192.168.31.90'
+        address = '192.168.31.142'
         # address = '192.168.31.103'
         port = 8000
         self.buffsize = 1024
@@ -54,10 +54,15 @@ class Ui_MainWindow(object):
         self.passwordLine.setCursorPosition(0)
         self.passwordLine.setObjectName("lineEdit_2")
         self.signInButton = QtWidgets.QPushButton(self.centralwidget)
-        self.signInButton.setGeometry(QtCore.QRect(70, 260, 221, 41))
+        self.signInButton.setGeometry(QtCore.QRect(60, 270, 110, 41))
         self.signInButton.setStyleSheet("background-color: rgb(7, 85, 240);\n""color: rgb(255, 255, 255);")
         self.signInButton.setObjectName("pushButton")
         self.signInButton.clicked.connect(self.login)
+        self.signOnButton = QtWidgets.QPushButton(self.centralwidget)
+        self.signOnButton.setGeometry(QtCore.QRect(180, 270, 110, 41))
+        self.signOnButton.setStyleSheet("background-color: rgb(7, 85, 240);\n""color: rgb(255, 255, 255);")
+        self.signOnButton.setObjectName("pushButton")
+        self.signOnButton.clicked.connect(self.signon)
 
         self.formFrame = QtWidgets.QFrame(self.centralwidget)
         self.formFrame.setGeometry(QtCore.QRect(0, -1, 361, 151))
@@ -81,6 +86,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         self.MainWindow.setWindowTitle(_translate("MainWindow", "QQ登录"))
         self.signInButton.setText(_translate("MainWindow", "登录"))
+        self.signOnButton.setText(_translate("MainWindow", "注册"))
         self.accountLabel.setText(_translate("MainWindow", "账号："))
         self.passwordLabel.setText(_translate("MainWindow", "密码："))
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -119,11 +125,74 @@ class Ui_MainWindow(object):
         elif str(recv_info)=='false-login':
             QMessageBox.information(self.MainWindow, '失败', '此账号已登录!', QMessageBox.Ok | QMessageBox.Close,QMessageBox.Close)
 
+    def signon(self):
+        self.register=RegistrationForm(self.s)
+        self.register.show()
+
+class RegistrationForm(QWidget):
+    def __init__(self,socket):
+        super().__init__()
+        self.s = socket
+        self.buffsize=1024
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle('用户注册')
+
+        layout = QFormLayout()
+
+        self.id_label = QLabel('用户名')
+        self.id_input = QLineEdit()
+        layout.addRow(self.id_label, self.id_input)
+
+        self.password_label = QLabel('密码')
+        self.password_input = QLineEdit()
+        self.password_input.setEchoMode(QLineEdit.Password)
+        layout.addRow(self.password_label, self.password_input)
+
+        self.check_label = QLabel('确认')
+        self.check_input = QLineEdit()
+        self.check_input.setEchoMode(QLineEdit.Password)
+        layout.addRow(self.check_label, self.check_input)
+
+        self.submit_button = QPushButton('注册')
+        self.submit_button.clicked.connect(self.register_user)
+        layout.addWidget(self.submit_button)
+
+        self.setLayout(layout)
+
+    def register_user(self):
+        user_id = self.id_input.text()
+        password = self.password_input.text()
+        check=self.check_input.text()
+        if check==password:
+            if user_id and password:
+                signup_info = ['signup']
+                signup_info.append(user_id)
+                signup_info.append(password)
+                login_info = '$%'.join(signup_info)
+                self.s.send(str(signup_info).encode())
+                self.signup_recv()
+            else:
+                QMessageBox.warning(self, '输入错误', '请输入账号密码')
+        else:QMessageBox.warning(self, '输入错误', '两次输入的密码不一致')
+
+    def signup_recv(self):
+        print("收收中")
+        recv_info = self.s.recv(self.buffsize).decode('utf-8')
+        print(recv_info)
+        if str(recv_info) == 'true':
+            QMessageBox.information(self.MainWindow, '注册', '注册成功!', QMessageBox.Ok | QMessageBox.Close,
+                                    QMessageBox.Close)
+            login_ui.hide()
+            QQmain_ui.show()
+            ui1.label.setText(self.user)
+        elif str(recv_info) == 'false':
+            QMessageBox.information(self.MainWindow, '失败', '此账号已注册!', QMessageBox.Ok | QMessageBox.Close,
+                                    QMessageBox.Close)
 
 
 if __name__ == "__main__":
-
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     login_ui = QtWidgets.QWidget()
     ui = Ui_MainWindow()        # 登录界面
@@ -135,7 +204,4 @@ if __name__ == "__main__":
     QQmain_ui = QtWidgets.QWidget()
     ui1 = QQ.Ui_MainWindowt(ui.s)
     ui1.setupUit(QQmain_ui)
-
     sys.exit(app.exec_())
-
-

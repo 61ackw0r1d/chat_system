@@ -53,23 +53,23 @@ class file_send():
         return 0
 
 class file_recv:
-    def __init__(self):
+    def __init__(self,ip):
         self.dirsave = "C:/Users/Public/Downloads/pythonqq_filerecv"
         if not os.path.exists(self.dirsave):  # 看是否有该文件夹，没有则创建文件夹
             os.mkdir(self.dirsave)
         ''' 创建socket对象'''
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        '''获取本地'''
-        # self.host = socket.gethostbyname(socket.gethostname())
-        # print('self.host' + self.host)
-        self.host = '127.0.0.1'
+        self.ip = ip
+        # '''获取本地'''
+        # # self.host = socket.gethostbyname(socket.gethostname())
+        # # print('self.host' + self.host)
+        # self.host = '127.0.0.1'
 
         '''设置端口'''
         self.port = 7788
 
         '''绑定地址'''
-        self.server.bind((self.host, self.port))
+        self.server.bind((self.ip, self.port))
 
         '''设置最大连接数， 超过后排队'''
         self.server.listen(12)
@@ -92,7 +92,7 @@ class file_recv:
             t1.join()
             print(t1.get_result())
             if t1.get_result() == True:
-                return 0
+                return t1.get_result()
 
     def taskfilethread(self, client):
         '''接收文件名,文件大小'''

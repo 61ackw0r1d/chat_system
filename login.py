@@ -16,8 +16,8 @@ class Ui_MainWindow(QWidget):
 
     def tcp_start(self):
         # address = '127.0.0.1'
-        address = '192.168.31.142'
-        # address = '192.168.31.103'
+        # address = '192.168.31.142'
+        address = '192.168.31.90'
         port = 8000
         self.buffsize = 1024
         self.s = socket(AF_INET, SOCK_STREAM)
@@ -170,7 +170,7 @@ class RegistrationForm(QWidget):
                 signup_info = ['signup']
                 signup_info.append(user_id)
                 signup_info.append(password)
-                login_info = '$%'.join(signup_info)
+                signup_info = '$%'.join(signup_info)
                 self.s.send(str(signup_info).encode())
                 self.signup_recv()
             else:
@@ -178,7 +178,7 @@ class RegistrationForm(QWidget):
         else:QMessageBox.warning(self, '输入错误', '两次输入的密码不一致')
 
     def signup_recv(self):
-        print("收收中")
+        print("接收中")
         recv_info = self.s.recv(self.buffsize).decode('utf-8')
         print(recv_info)
         if str(recv_info) == 'true':

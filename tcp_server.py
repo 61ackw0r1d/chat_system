@@ -93,7 +93,7 @@ def change_alive(db, logindata):
     except Exception as e:
         print(e)
 
-def regeister_db(regeisterdata,clientsock):
+def signup_db(regeisterdata,clientsock):
     db=connect_to_mysql()
     cursor = db.cursor()
     ID = regeisterdata[1]
@@ -102,10 +102,13 @@ def regeister_db(regeisterdata,clientsock):
     result = cursor.fetchall()
     # print("isUser函数中:", result)
     if result:
-        return False
+        signup_bkinfo="false"
+        clientsock.send(signup_bkinfo.encode())
     else:
         query="INSERT INTO user (ID, password) VALUES (%s, %s)", (regeisterdata[1],regeisterdata[2])
         cursor.execute(query)
+        signup_bkinfo = "true"
+        clientsock.send(signup_bkinfo.encode())
 
 def login_db(logindata, clientsock):
     db = connect_to_mysql()

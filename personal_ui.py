@@ -144,9 +144,9 @@ class Ui_Dialog(object):
         self.re3.start()
         self.re4.start()
 
-    def filesend_request(self,recvtext_ip):
+    def filesend_request(self):
         self.textBrowser.append('          准备接收对方发来的文件......\n')
-        fl = file_recv(ip=recvtext_ip)
+        fl = file_recv()
         recv_result = fl.server100()
         print('My sendresult is : ' + str(recv_result))
         if recv_result == 0:
@@ -180,7 +180,7 @@ class Ui_Dialog(object):
                     self.voicechat_receive(recvtext_ip)
 
                 elif recvtext_list[length-1] == 'filesend_request':
-                    self.filesend_request(recvtext_ip)
+                    self.filesend_request()
 
                 elif recvtext_list[length-1] == 'filesend_accept':
                     self.filesend_accept(recvtext_ip)

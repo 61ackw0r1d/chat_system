@@ -11,7 +11,6 @@ from PyQt5.QtWidgets import QApplication, QWidget, QFormLayout, QLabel, QLineEdi
 from socket import *
 import sys
 
-
 class Ui_MainWindow(QWidget):
 
     def tcp_start(self):
@@ -117,9 +116,12 @@ class Ui_MainWindow(QWidget):
         print(recv_info)
         if str(recv_info) == 'true':
             QMessageBox.information(self.MainWindow, '登录成功', '登录成功!', QMessageBox.Ok | QMessageBox.Close, QMessageBox.Close)
+            # sys.sleep(2 * 1000)
             login_ui.hide()
+            ui1.retranslateUi(self.MainWindow,self.accountLine.text())
             QQmain_ui.show()
             ui1.label.setText(self.user)
+            # print("in login.py self.user", self.user)
         elif str(recv_info) == 'false-id/pw':
             QMessageBox.information(self.MainWindow, '失败', '登录失败，账号或密码错误!!', QMessageBox.Ok | QMessageBox.Close,QMessageBox.Close)
         elif str(recv_info)=='false-login':
@@ -199,8 +201,8 @@ if __name__ == "__main__":
     ui.tcp_start()
     login_ui.show()
     print('tcp connect!')
-    import QQ
     QQmain_ui = QtWidgets.QWidget()
+    import QQ
     ui1 = QQ.Ui_MainWindowt(ui.s)
     ui1.setupUit(QQmain_ui)
     sys.exit(app.exec_())

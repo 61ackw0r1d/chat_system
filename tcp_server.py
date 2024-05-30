@@ -1,14 +1,11 @@
-#-*-coding:utf-8-*-
+# -*-coding:utf-8-*-
 
 from socket import *
 import threading
 import re
-# from coonect_mysql import connect_to_mysql
 import mysql.connector
 
-client_list=[]  # 已登录的用户
-
-
+client_list = []  # 已登录的用户
 
 user_list = []
 
@@ -16,6 +13,8 @@ alive_user = 0
 group_list = []
 # 已经在线的用户
 user_client = []
+
+
 # todo:修改数据为数据库文件
 # todo:修改非服务器的接收信息处理
 # todo:修改图标
@@ -23,13 +22,12 @@ user_client = []
 # todo:上下线更新状态/数据库
 
 
-
 def connect_to_mysql():
     try:
         # 创建数据库连接
         db = mysql.connector.connect(
             host="192.168.31.90",  # MySQL 服务器地址
-            user="chat",   # 用户名
+            user="chat",  # 用户名
             password="123456",  # 密码
             database="ast_chatsystem"  # 数据库名称
         )
@@ -41,6 +39,10 @@ def connect_to_mysql():
         return None
 
 
+def retdata():
+    return user_list
+
+
 def getinfo(db):
     global alive_user
     if db != None:
@@ -48,15 +50,17 @@ def getinfo(db):
         cursor.execute("select * from ast_chatsystem.user")
         result = cursor.fetchall()
         for row in result:
-            id, password, is_alive = row
+            print("getinfo", row)
+            id, password, is_alive, headpath = row
             user_list.append((id, password))
             if is_alive:
-               alive_user += 1
+                alive_user += 1
         cursor.execute("select * from ast_chatsystem.group")
         result = cursor.fetchall()
         name_list = []
         for row in result:
-            name, id = row
+            print("in getinfo result", result)
+            name, id, group_headpath = row
             name_list.append(name)
         group_list.append(name_list)
         print(group_list)
@@ -66,6 +70,8 @@ def getinfo(db):
     # print(user_list)
     # user_l = len(user_list)
     print("###", alive_user)
+    return retdata()
+
 
 # db.close()
 
@@ -78,10 +84,23 @@ def isUser(db, logindata):
     query = "select * from ast_chatsystem.user where ID=%s and password=%s"
     cursor.execute(query, (ID, password))
     result = cursor.fetchall()
-    # print("isUser函数中:", result)
     cursor.close()
+    # print("isUser函数中:", result)
     return result
 
+def friend_get(user,friend_type,clientsock):
+    db = connect_to_mysql()
+    cursor = db.cursor()
+    query = "select friendID from ast_chatsystem.user_relationship where userID=%s and relationship=%s"
+    cursor.execute(query, (user,friend_type))
+    result = cursor.fetchall()
+    str=''
+    for elem in result:
+        str+=elem[0]
+        str+="%$"
+    print(str)
+    cursor.close()
+    clientsock.send('1'.encode())
 # 改变用户在线状态
 def change_alive(db, logindata):
     try:
@@ -96,8 +115,9 @@ def change_alive(db, logindata):
     except Exception as e:
         print(e)
 
-def signup_db(regeisterdata,clientsock):
-    db=connect_to_mysql()
+
+def signup_db(regeisterdata, clientsock):
+    db = connect_to_mysql()
     cursor = db.cursor()
     ID = regeisterdata[1]
     password = regeisterdata[2]
@@ -106,22 +126,21 @@ def signup_db(regeisterdata,clientsock):
     result = cursor.fetchall()
     # print("isUser函数中:", result)
     if result:
-        signup_bkinfo="false"
+        signup_bkinfo = "false"
         clientsock.send(signup_bkinfo.encode())
     else:
-        query="INSERT INTO user (ID, password) VALUES (%s, %s)"
+        query = "INSERT INTO user (ID, password,is_online) VALUES (%s, %s,0)"
         cursor.execute(query, (ID,password))
         db.commit()
-        cursor.close()
         signup_bkinfo = "true"
         clientsock.send(signup_bkinfo.encode())
+    cursor.close()
+
 
 def login_db(logindata, clientsock):
     db = connect_to_mysql()
-    getinfo(db)
     res = isUser(db, logindata)
     # print(res[0][2])
-    user_l = len(user_list)
     # 非空则代表数据库中有所查找的用户
     if res:
         # res[2]是数据库中对应user_alive属性
@@ -139,7 +158,8 @@ def login_db(logindata, clientsock):
             print(user_client)
             clientsock.send(login_bkinfo.encode())
 
-            change_alive(db, logindata)        # 修改为在线
+            # change_alive(db, logindata)        # 修改为在线 / 暂时注释掉用于调试
+            # todo 调试完成后重新打开注释
     else:
         # 数据库查不到
         login_bkinfo = 'false-id/pw'
@@ -156,6 +176,10 @@ def tcplink(clientsock, clientaddress):
             login_db(recvdata_list, clientsock)
         elif str(recvdata_list[0]) == 'signup':
             signup_db(recvdata_list, clientsock)
+        elif str(recvdata_list[0]) == 'close':
+            change_alive(db, ("",recvdata_list[1], ""))
+        elif str(recvdata_list[0]) == 'friend':
+            friend_get(recvdata_list[1],recvdata_list[2],clientsock)
         elif str(recvdata_list[0]) == 'wechat_req':  # 处理群聊消息
             for y in range(0, group_l):
                 if str(group_list[y][0]) == str(recvdata_list[1]):
@@ -165,7 +189,7 @@ def tcplink(clientsock, clientaddress):
                     print(group_list[y])
                     groupl = len(group_list[y])
                     print(groupl)
-                    if True:                                            #  groupl>2
+                    if True:  # groupl>2
                         for h in range(1, groupl):
                             group_list[y][h].send(requser.encode())
                     break
@@ -184,8 +208,8 @@ def tcplink(clientsock, clientaddress):
                     break
         elif str(recvdata_list[0]) == 'wechat':
             for wl in range(0, group_l):
-                if str(group_list[wl][0]) == str(recvdata_list[1]):  ###
-                    senddata=str(recvdata_list[2])+":"+str(recvdata_list[3])
+                if str(group_list[wl][0]) == str(recvdata_list[1]):
+                    senddata = str(recvdata_list[2]) + ":" + str(recvdata_list[3])
                     l = len(group_list[wl])
                     try:
                         if l >= 2:
@@ -194,15 +218,15 @@ def tcplink(clientsock, clientaddress):
                         else:
                             clientsock.send(senddata.encode())
                             break
-                        print("群聊信息" + str(senddata)+str(clientaddress))
+                        print("群聊信息" + str(senddata) + str(clientaddress))
                     except ValueError:
                         break
-        elif str(recvdata_list[0]) == 'personal':   # 处理私聊消息
+        elif str(recvdata_list[0]) == 'personal':  # 处理私聊消息
             user_cl = len(user_client)
-            send_info = str(recvdata_list[1])+":"+str(recvdata_list[3])
+            send_info = str(recvdata_list[1]) + ":" + str(recvdata_list[3])
             z = 1
             for pl in range(0, user_cl):
-                if user_client[pl][0]==recvdata_list[2]:
+                if user_client[pl][0] == recvdata_list[2]:
                     for ql in range(0, user_cl):
                         if user_client[ql][0] == recvdata_list[1]:
                             user_client[ql][1].send(send_info.encode())
@@ -210,14 +234,14 @@ def tcplink(clientsock, clientaddress):
                     print(clientaddress)
                     break
                 elif z == user_cl:
-                    back = str(recvdata_list[2])+'不在线'
-                    backtext = 'personal$%'+recvdata_list[1]+'$%'+recvdata_list[2]+'$%'+back
+                    back = str(recvdata_list[2]) + '不在线'
+                    backtext = 'personal$%' + recvdata_list[1] + '$%' + recvdata_list[2] + '$%' + back
                     print('sendback text is: ' + backtext)
                     clientsock.send(back.encode())
                 z = z + 1
-        elif str(recvdata_list[0]) == 'voicechat':   # 处理语音聊天消息
+        elif str(recvdata_list[0]) == 'voicechat':  # 处理语音聊天消息
             length = len(recvdata_list)
-            if str(recvdata_list[length-2]) == 'end':
+            if str(recvdata_list[length - 2]) == 'end':
                 user_cl = len(user_client)  # list[1] sender  list[2] receiver
                 # send_info = str(recvdata_list[1])+":"+str(recvdata_list[3])
                 length = len(recvdata_list)
@@ -228,7 +252,7 @@ def tcplink(clientsock, clientaddress):
                         list = re.findall(p1, str(user_client[pl][1]))
                         list1 = list[1].split(',')
                         result = ''.join(list1)
-                        result = result + '$%' + 'ignore' +'$%'+'voicechat_accept'  # 发送给发起方
+                        result = result + '$%' + 'ignore' + '$%' + 'voicechat_accept'  # 发送给发起方
                         print(list1)
 
                         for ql in range(0, user_cl):
@@ -251,7 +275,7 @@ def tcplink(clientsock, clientaddress):
                         clientsock.send(back.encode())
                     z = z + 1
             else:
-                user_cl = len(user_client)         # list[1] sender  list[2] receiver
+                user_cl = len(user_client)  # list[1] sender  list[2] receiver
                 # send_info = str(recvdata_list[1])+":"+str(recvdata_list[3])
                 length = len(recvdata_list)
                 z = 1
@@ -270,9 +294,9 @@ def tcplink(clientsock, clientaddress):
                                 list = re.findall(p1, str(user_client[ql][1]))
                                 list1 = list[1].split(',')
                                 send_info = ''.join(list1)
-                                if recvdata_list[length-2] == 'end':
+                                if recvdata_list[length - 2] == 'end':
                                     send_info = ''.join('end')
-                                send_info = send_info + '$%' + 'voicechat_request'   # 发送给接收方
+                                send_info = send_info + '$%' + 'voicechat_request'  # 发送给接收方
                                 print('send_info is:' + send_info)
                                 user_client[pl][1].send(send_info.encode())
                                 user_client[ql][1].send(result.encode())
@@ -280,10 +304,10 @@ def tcplink(clientsock, clientaddress):
 
                         break
                     elif z == user_cl:
-                        back = str(recvdata_list[2])+'不在线'
+                        back = str(recvdata_list[2]) + '不在线'
                         clientsock.send(back.encode())
                     z = z + 1
-        elif str(recvdata_list[0]) == 'filesend':   # 处理文件传输
+        elif str(recvdata_list[0]) == 'filesend':  # 处理文件传输
             user_cl = len(user_client)  # list[1] sender  list[2] receiver
             # send_info = str(recvdata_list[1])+":"+str(recvdata_list[3])
             z = 1
@@ -313,15 +337,17 @@ def tcplink(clientsock, clientaddress):
                     back = str(recvdata_list[2]) + '不在线'
                     clientsock.send(back.encode())
                 z = z + 1
-        else :
+        else:
             print('无法识别：')
             print(recvdata_list[0])
             break
 
     clientsock.close()
+    print("处理完成")
     del client_list[-1]
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     from netifaces import interfaces, ifaddresses, AF_INET
 
     ifaceName = interfaces()[2]
@@ -333,7 +359,6 @@ if __name__=="__main__":
     s = socket(AF_INET, SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     address = s.getsockname()[0]
-    print("服务端运行中，ip:"+address)
     port = 8000
     s = socket(AF_INET, SOCK_STREAM)
     s.bind((address, port))
@@ -342,10 +367,7 @@ if __name__=="__main__":
     while True:
         clientsock, clientaddress = s.accept()
         client_list.append(clientsock)
-        print('connect from:', clientaddress)   # clientaddress 包含IP与端口
-        t = threading.Thread(target=tcplink, args=(clientsock,clientaddress))  #新创建的线程
+        print('connect from:', clientaddress)  # clientaddress 包含IP与端口
+        t = threading.Thread(target=tcplink, args=(clientsock, clientaddress))  # 新创建的线程
         t.start()
     # s.close()
-
-
-

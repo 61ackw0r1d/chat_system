@@ -13,7 +13,7 @@ import chatroom_ui
 import personal_ui
 from Dialog_add import Ui_Dialog
 from tcp_server import connect_to_mysql, change_alive
-
+from tcp_server import getinfo, connect_to_mysql
 
 menu_ui = QtWidgets.QWidget()
 ui4 = Ui_Dialog()
@@ -202,7 +202,9 @@ class Ui_MainWindowt(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.MainWindow.setWindowTitle(_translate("MainWindow", "QQ"))
-        self.label.setText(_translate("MainWindow", "2097557613"))
+        # self.label.setText(_translate("MainWindow", "2097557613"))
+        self.label.setText(_translate("MainWindow", "*******************************************************"))
+
         self.closeButton.setText(_translate("MainWindow", "关闭"))
         self.hideButton.setText(_translate("MainWindow", "隐藏"))
         self.friendButton.setText(_translate("MainWindow", "好友"))
@@ -223,16 +225,39 @@ class Ui_MainWindowt(object):
         self.treeWidget.headerItem().setText(0, _translate("MainWindow", "好友列表"))
         __sortingEnabled = self.treeWidget.isSortingEnabled()
         self.treeWidget.setSortingEnabled(False)
-        self.treeWidget.topLevelItem(0).setText(0, _translate("MainWindow", "朋友"))
-        self.treeWidget.topLevelItem(0).child(0).setText(0, _translate("MainWindow", "2021201501"))
-        self.treeWidget.topLevelItem(0).child(1).setText(0, _translate("MainWindow", "2021201502"))
-        self.treeWidget.topLevelItem(0).child(2).setText(0, _translate("MainWindow", "2021201503"))
-        self.treeWidget.topLevelItem(1).setText(0, _translate("MainWindow", "家人"))
-        self.treeWidget.topLevelItem(1).child(0).setText(0, _translate("MainWindow", "2021201504"))
-        self.treeWidget.topLevelItem(2).setText(0, _translate("MainWindow", "同学"))
-        self.treeWidget.topLevelItem(2).child(0).setText(0, _translate("MainWindow", "2021201505"))
-        self.treeWidget.topLevelItem(3).setText(0, _translate("MainWindow", "好友"))
-        self.treeWidget.topLevelItem(3).child(0).setText(0, _translate("MainWindow", "2021201506"))
+
+
+        login_user = '2021201501'
+        relationships = ['朋友', '家人', '同学', '好友']
+        db = connect_to_mysql()
+        cursor = db.cursor()
+        item_count = 0
+        for relation in relationships:
+            query = "select friendID from ast_chatsystem.user_relationship where userID=%s and relationship=%s"
+            cursor.execute(query,(login_user, relation))
+            ret = cursor.fetchall()
+            print("ret is", ret)
+            if ret:
+                print(relation+"生成中")
+                self.treeWidget.topLevelItem(item_count).setText(0, _translate("MainWindow", relation))
+                count = 0
+                for elem in ret:
+                    self.treeWidget.topLevelItem(item_count).child(count).setText(0, _translate("MainWindow", elem[0]))
+                    count += 1
+                item_count += 1
+            else:
+                print("nothing in his/her", relation)
+
+        # self.treeWidget.topLevelItem(0).setText(0, _translate("MainWindow", "朋友"))
+        # self.treeWidget.topLevelItem(0).child(0).setText(0, _translate("MainWindow", "2021201501"))
+        # self.treeWidget.topLevelItem(0).child(1).setText(0, _translate("MainWindow", "2021201502"))
+        # self.treeWidget.topLevelItem(0).child(2).setText(0, _translate("MainWindow", "2021201503"))
+        # self.treeWidget.topLevelItem(1).setText(0, _translate("MainWindow", "家人"))
+        # self.treeWidget.topLevelItem(1).child(0).setText(0, _translate("MainWindow", "2021201504"))
+        # self.treeWidget.topLevelItem(2).setText(0, _translate("MainWindow", "同学"))
+        # self.treeWidget.topLevelItem(2).child(0).setText(0, _translate("MainWindow", "2021201505"))
+        # self.treeWidget.topLevelItem(3).setText(0, _translate("MainWindow", "好友"))
+        # self.treeWidget.topLevelItem(3).child(0).setText(0, _translate("MainWindow", "2021201506"))
         self.treeWidget.setSortingEnabled(__sortingEnabled)
 
     def group_req(self, item):
@@ -271,6 +296,7 @@ class Ui_MainWindowt(object):
     def personal(self, item):
         self.user = self.label.text()
         self.personaltitle = item.text(0)
+        print("in qq.py", self.user, self.personaltitle)
         if self.personaltitle!='朋友' and self.personaltitle!='同学' and self.personaltitle!='家人' and self.personaltitle!='好友':
 
 
@@ -373,6 +399,7 @@ class Ui_MainWindowt(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(""), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.treeWidget.currentItem().setIcon(0, icon)
+
 
     def movefriend(self):
         pass

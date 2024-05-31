@@ -14,14 +14,6 @@ group_list = []
 # 已经在线的用户
 user_client = []
 
-
-# todo:修改数据为数据库文件
-# todo:修改非服务器的接收信息处理
-# todo:修改图标
-# todo:阅读代码
-# todo:上下线更新状态/数据库
-
-
 def connect_to_mysql():
     try:
         # 创建数据库连接
@@ -47,22 +39,14 @@ def getinfo(db):
     global alive_user
     if db != None:
         cursor = db.cursor()
-        cursor.execute("select * from ast_chatsystem.user")
-        result = cursor.fetchall()
-        for row in result:
-            print("getinfo", row)
-            id, password, is_alive, headpath = row
-            user_list.append((id, password))
-            if is_alive:
-                alive_user += 1
-        cursor.execute("select * from ast_chatsystem.group")
+        cursor.execute("select * from ast_chatsystem.groups")
         result = cursor.fetchall()
         name_list = []
         for row in result:
-            print("in getinfo result", result)
-            name, id, group_headpath = row
+            name, id = row
+            name_list=[]
             name_list.append(name)
-        group_list.append(name_list)
+            group_list.append(name_list)
         print(group_list)
         cursor.close()
     else:
@@ -156,7 +140,8 @@ def login_db(logindata, clientsock):
             login_bkinfo = 'true'
             user_client.append(usercl)
             clientsock.send(login_bkinfo.encode())
-
+            global alive_user
+            alive_user+=1
             # change_alive(db, logindata)        # 修改为在线 / 暂时注释掉用于调试
             # todo 调试完成后重新打开注释
     else:
@@ -188,9 +173,8 @@ def tcplink(clientsock, clientaddress):
                     print(group_list[y])
                     groupl = len(group_list[y])
                     print(groupl)
-                    if True:  # groupl>2
-                        for h in range(1, groupl):
-                            group_list[y][h].send(requser.encode())
+                    for h in range(1, groupl):
+                        group_list[y][h].send(requser.encode())
                     break
         elif str(recvdata_list[0]) == 'wechat_quit':  # 处理群聊消息
             for y in range(0, group_l):
@@ -357,7 +341,8 @@ if __name__ == "__main__":
     s = socket(AF_INET, SOCK_STREAM)
     s.bind((address, port))
     s.listen(10)  # 最大连接数
-
+    db = connect_to_mysql()
+    getinfo(db)
     while True:
         clientsock, clientaddress = s.accept()
         client_list.append(clientsock)

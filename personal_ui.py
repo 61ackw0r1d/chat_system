@@ -168,7 +168,6 @@ class Ui_Dialog(object):
                 print('receive message list is:')
                 print(recvtext_list)
                 recvtext_ip = recvtext_list[0].replace("'", "").split(' ')[0]
-                #todo: 重构代码为不同方法
 
                 if recvtext_list[length-1] == 'voicechat_request':
                     self.voicechat_requset(recvtext_ip,recvtext_list[length-2])

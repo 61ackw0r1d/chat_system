@@ -8,7 +8,22 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from threading_end import *
-
+import mysql.connector
+def connect_to_mysql():
+    try:
+        # 创建数据库连接
+        db = mysql.connector.connect(
+            host="192.168.31.90",  # MySQL 服务器地址
+            user="chat",  # 用户名
+            password="123456",  # 密码
+            database="ast_chatsystem"  # 数据库名称
+        )
+        # 创建游标对象，用于执行 SQL 查询
+        print("数据库连接成功！")
+        return db
+    except mysql.connector.Error as err:
+        print(f"数据库连接失败：{err}")
+        return None
 class Ui_MainWindow(object):
     def __init__(self, s, wename, user):
         self.s = s
@@ -47,33 +62,32 @@ class Ui_MainWindow(object):
         self.listWidget.setIconSize(QtCore.QSize(40, 40))
         self.listWidget.setGridSize(QtCore.QSize(40, 40))
         self.listWidget.setObjectName("listWidget")
+        _translate = QtCore.QCoreApplication.translate
 
-        item = QtWidgets.QListWidgetItem()
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("image/chatbk.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item.setIcon(icon1)
-        self.listWidget.addItem(item)
+        __sortingEnabled = self.listWidget.isSortingEnabled()
+        self.listWidget.setSortingEnabled(True)
 
-        item = QtWidgets.QListWidgetItem()
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("image/qqchat.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item.setIcon(icon2)
-        self.listWidget.addItem(item)
-
-        item = QtWidgets.QListWidgetItem()
-        item.setIcon(icon)
-        self.listWidget.addItem(item)
-
-        item = QtWidgets.QListWidgetItem()
-        item.setIcon(icon)
-        self.listWidget.addItem(item)
-
-        item = QtWidgets.QListWidgetItem()
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("image/qqlogin.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item.setIcon(icon3)
-        self.listWidget.addItem(item)
-
+        db = connect_to_mysql()
+        cursor = db.cursor()
+        query = """
+                    SELECT userID
+                    FROM ast_chatsystem.groups_users_relationship AS gs
+                    LEFT JOIN ast_chatsystem.groups AS g
+                    ON g.groupID = gs.groupID
+                    WHERE g.group_name = %s
+                """
+        print(self.wename)
+        cursor.execute(query, (str(self.wename),))
+        ret = cursor.fetchall()
+        if ret:
+            for ele in ret:
+                item = QtWidgets.QListWidgetItem()
+                icon = QtGui.QIcon()
+                icon.addPixmap(QtGui.QPixmap("image/" + ele[0] + ".jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                item.setIcon(icon)
+                item.setText(_translate("MainWindow", ele[0]))
+                self.listWidget.addItem(item)
+        cursor.close()
         self.label = QtWidgets.QLabel(self.frame)
         self.label.setGeometry(QtCore.QRect(0, 10, 241, 31))
         self.label.setObjectName("label")
@@ -120,19 +134,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         self.GroupChat.setWindowTitle(_translate("MainWindow", "QQ群聊"))
         __sortingEnabled = self.listWidget.isSortingEnabled()
-        self.listWidget.setSortingEnabled(False)
-
-        #todo: 修改文案
-        item = self.listWidget.item(0)
-        item.setText(_translate("MainWindow", "2021201501"))
-        item = self.listWidget.item(1)
-        item.setText(_translate("MainWindow", "2021201502"))
-        item = self.listWidget.item(2)
-        item.setText(_translate("MainWindow", "2021201503"))
-        item = self.listWidget.item(3)
-        item.setText(_translate("MainWindow", "2021201504"))
-        item = self.listWidget.item(4)
-        item.setText(_translate("MainWindow", "2021201505"))
+        self.listWidget.setSortingEnabled(True)
 
         self.listWidget.setSortingEnabled(__sortingEnabled)
         self.label.setText(_translate("MainWindow", "群聊人员："))
@@ -148,6 +150,7 @@ class Ui_MainWindow(object):
             if text!='':
                 we_text.append(text)
                 we_text='$%'.join(we_text)
+                print(we_text)
                 self.s.send(we_text.encode())
             else:
                 # QtWidgets.QMessageBox.information(self.MainWindow, '警告', '输入消息为空！', QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close, QtWidgets.QMessageBox.Close)

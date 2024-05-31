@@ -1,45 +1,25 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'QQ.ui'
-#
-# Created by: PyQt5 UI code generator 5.11.2
-#
-# WARNING! All changes made in this file will be lost!
-
-import mysql.connector
 from PyQt5 import QtCore, QtGui, QtWidgets
 import chatroom_ui
+from chatroom_ui import connect_to_mysql
 import personal_ui
 from Dialog_add import Ui_Dialog
 
-menu_ui = QtWidgets.QWidget()
+menu_ui_add_group = QtWidgets.QWidget()
 ui4 = Ui_Dialog()
-ui4.setupUi(menu_ui)
+ui4.setupUi(menu_ui_add_group)
 
-def connect_to_mysql():
-    try:
-        # 创建数据库连接
-        db = mysql.connector.connect(
-            host="192.168.31.90",  # MySQL 服务器地址
-            user="chat",  # 用户名
-            password="123456",  # 密码
-            database="ast_chatsystem"  # 数据库名称
-        )
-        # 创建游标对象，用于执行 SQL 查询
-        print("数据库连接成功！")
-        return db
-    except mysql.connector.Error as err:
-        print(f"数据库连接失败：{err}")
-        return None
+menu_ui_add_friend = QtWidgets.QWidget()
+ui5 = Ui_Dialog()
+ui5.setupUi(menu_ui_add_friend)
 
 class Ui_MainWindowt(object):
 
     def __init__(self, s):
-        self.s =s
+        self.s = s
         self.buffsize = 1024
 
     def setupUit(self, MainWindow):
-        self.MainWindow=MainWindow
+        self.MainWindow = MainWindow
         self.MainWindow.setObjectName("MainWindow")
         self.MainWindow.resize(326, 627)
         self.MainWindow.setMinimumSize(QtCore.QSize(326, 627))
@@ -115,65 +95,12 @@ class Ui_MainWindowt(object):
         font.setPointSize(10)
         self.treeWidget.headerItem().setFont(0, font)
 
-        # item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
-        # item_0.setToolTip(0, "")
-        # font = QtGui.QFont()
-        # font.setPointSize(11)
-        # item_0.setFont(0, font)
-        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # item_1.setFont(0, font)
-        # icon6 = QtGui.QIcon()
-        # icon6.addPixmap(QtGui.QPixmap("image/头像1.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        # item_1.setIcon(0, icon6)
-        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        # icon7 = QtGui.QIcon()
-        # icon7.addPixmap(QtGui.QPixmap("image/头像2.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        # item_1.setIcon(0, icon7)
-        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        # icon8 = QtGui.QIcon()
-        # icon8.addPixmap(QtGui.QPixmap("image/头像3.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        # item_1.setIcon(0, icon8)
-        # item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
-        # font = QtGui.QFont()
-        # font.setPointSize(11)
-        # item_0.setFont(0, font)
-        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # item_1.setFont(0, font)
-        # icon9 = QtGui.QIcon()
-        # icon9.addPixmap(QtGui.QPixmap("image/头像4.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        # item_1.setIcon(0, icon9)
-        # item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
-        # font = QtGui.QFont()
-        # font.setPointSize(11)
-        # item_0.setFont(0, font)
-        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        # icon10 = QtGui.QIcon()
-        # icon10.addPixmap(QtGui.QPixmap("image/头像5.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        # item_1.setIcon(0, icon10)
-        # item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
-        # font = QtGui.QFont()
-        # font.setPointSize(11)
-        # item_0.setFont(0, font)
-        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        # icon11 = QtGui.QIcon()
-        # icon11.addPixmap(QtGui.QPixmap("image/头像6.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        # item_1.setIcon(0, icon11)
-
-        #self.setCentralWidget(self.treeWidget)
         self.treeWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.treeWidget.customContextMenuRequested.connect(self.menuevent)
-        #MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
-        #MainWindow.setStatusBar(self.statusbar)
 
-        # self.retranslateUi(MainWindow)
         self.closeButton.clicked.connect(self.closeMainwindow_and_changeAlive)
-
 
         self.friendButton.clicked.connect(self.listWidget.hide)
         self.groupButton.clicked.connect(self.listWidget.show)
@@ -185,20 +112,17 @@ class Ui_MainWindowt(object):
         self.treeWidget.itemClicked.connect(self.personal)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-
-
     def closeMainwindow_and_changeAlive(self):
         self.MainWindow.close()
         self.close()
-        send_list=f"close$%{self.username}$%close"
+        send_list = f"close$%{self.username}$%close"
         # self.s.send(send_list.encode())
 
-    def retranslateUi(self, MainWindow,username):
-        self.username =  username
+    def retranslateUi(self, MainWindow, username):
+        self.username = username
 
         _translate = QtCore.QCoreApplication.translate
         self.MainWindow.setWindowTitle(_translate("MainWindow", "QQ"))
-        # self.label.setText(_translate("MainWindow", "2097557613"))
         self.label.setText(_translate("MainWindow", "*******************************************************"))
 
         self.closeButton.setText(_translate("MainWindow", "关闭"))
@@ -208,7 +132,6 @@ class Ui_MainWindowt(object):
         __sortingEnabled = self.listWidget.isSortingEnabled()
         self.listWidget.setSortingEnabled(False)  # 不排序
 
-        #todo: 修改代码
         db = connect_to_mysql()
         cursor = db.cursor()
 
@@ -222,61 +145,58 @@ class Ui_MainWindowt(object):
         cursor.execute(query, (self.username,))
         ret = cursor.fetchall()
         if ret:
-            for i in range(len(ret)):
+            for ele in ret:
                 item = QtWidgets.QListWidgetItem()
                 icon = QtGui.QIcon()
-                icon.addPixmap(QtGui.QPixmap("image/"+ret[i][0]+".png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                icon.addPixmap(QtGui.QPixmap("image/" + ele[0] + ".png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
                 item.setIcon(icon)
-                item.setText(_translate("MainWindow", ret[i][0]))
+                item.setText(_translate("MainWindow", ele[0]))
                 self.listWidget.addItem(item)
         self.listWidget.setSortingEnabled(__sortingEnabled)
         self.treeWidget.headerItem().setText(0, _translate("MainWindow", "好友列表"))
         __sortingEnabled = self.treeWidget.isSortingEnabled()
         self.treeWidget.setSortingEnabled(False)
 
-
         self.relationships = []
         query = "select relationship from ast_chatsystem.users_relationship where userID=%s group by relationship"
-        cursor.execute(query,(self.username,))
+        cursor.execute(query, (self.username,))
         ret = cursor.fetchall()
         if ret:
             for element in ret:
                 self.relationships.append(element[0])
 
-
         font = QtGui.QFont()
         font.setPointSize(10)
         for relation in self.relationships:
             query = "select friendID from ast_chatsystem.users_relationship where userID=%s and relationship=%s"
-            cursor.execute(query,(self.username, relation))
+            cursor.execute(query, (self.username, relation))
             ret = cursor.fetchall()
             print("ret is", ret)
             if ret:
                 item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
                 item_0.setFont(0, font)
                 item_0.setText(0, _translate("MainWindow", relation))
-                count = 0
                 for elem in ret:
                     item_1 = QtWidgets.QTreeWidgetItem(item_0)
                     item_1.setFont(0, font)
                     item_1.setText(0, _translate("MainWindow", elem[0]))
                     icon = QtGui.QIcon()
-                    icon.addPixmap(QtGui.QPixmap("image/"+elem[0]+".jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                    icon.addPixmap(QtGui.QPixmap("image/" + elem[0] + ".jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
                     item_1.setIcon(0, icon)
-                    count += 1
             else:
                 print("nothing in his/her", relation)
 
         self.treeWidget.setSortingEnabled(__sortingEnabled)
 
     def friend_recv(self):
-        recv_info=self.recv(self.buffsize).decode("utf-8")
+        recv_info = self.recv(self.buffsize).decode("utf-8")
         print(recv_info)
+
     def group_req(self, item):
-        self.grouptitle=item.text()
+        self.grouptitle = item.text()
         print(item.text())
         self.user = self.label.text()
-        group_chat=['wechat_req']
+        group_chat = ['wechat_req']
         group_chat.append(self.grouptitle)
         group_chat.append(self.user)
         group_chat = '$%'.join(group_chat)
@@ -309,16 +229,15 @@ class Ui_MainWindowt(object):
         self.user = self.label.text()
         self.personaltitle = item.text(0)
         print("in qq.py", self.user, self.personaltitle)
-        socket=self.s
+        socket = self.s
         if self.personaltitle not in self.relationships:
-
             personalchat_ui = QtWidgets.QWidget()
             ui3 = personal_ui.Ui_Dialog(socket, self.user, self.personaltitle)
             ui3.setupUi(personalchat_ui)
             personalchat_ui.show()
 
             ui3.perlLabel.setText(self.personaltitle)
-            print('my title is: '+self.personaltitle)
+            print('my title is: ' + self.personaltitle)
             ui3.pel_recv()
             ui3.pel_send()
             ui3.voice_chat()
@@ -330,16 +249,16 @@ class Ui_MainWindowt(object):
     def menuevent(self):
         self.treetext = self.treeWidget.currentItem().text(0)
 
-        if self.treetext == '同学' or self.treetext == '朋友' or self.treetext == '家人' or self.treetext == '好友' or str(self.treetext).isdigit()==False:
-
+        if self.treetext in self.relationships or str(self.treetext).isdigit() == False:
             pmenu1 = QtWidgets.QMenu(self.MainWindow)
             AddGroupAct = QtWidgets.QAction("添加分组", pmenu1)
             pmenu1.addAction(AddGroupAct)
             AddGroupAct.triggered.connect(self.addgroup)
 
-            insertm = QtWidgets.QAction("添加好友", pmenu1)
-            pmenu1.addAction(insertm)
-            insertm.triggered.connect(self.addfriend)
+            AddFriendAct = QtWidgets.QAction("添加好友", pmenu1)
+            pmenu1.addAction(AddFriendAct)
+            AddFriendAct.triggered.connect(self.addfriend)
+
             pmenu1.exec_(QtGui.QCursor.pos())
         else:
             pmenu2 = QtWidgets.QMenu(self.MainWindow)
@@ -364,8 +283,8 @@ class Ui_MainWindowt(object):
             pmenu2.exec_(QtGui.QCursor.pos())
 
     def addgroup(self):
-        menu_ui.show()
-        menu_ui.setWindowTitle("添加分组")
+        menu_ui_add_group.show()
+        menu_ui_add_group.setWindowTitle("添加分组")
         ui4.friendname.setText("新组名：")
 
         def gettext():
@@ -374,49 +293,51 @@ class Ui_MainWindowt(object):
                 root5 = QtWidgets.QTreeWidgetItem(self.treeWidget)
                 root5.setText(0, groupname)
                 self.treeWidget.addTopLevelItem(root5)
-                menu_ui.close()
+                menu_ui_add_group.close()
             else:
                 QtWidgets.QMessageBox.information(self.MainWindow, '提示', '组名不能为空!', QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
                                                   QtWidgets.QMessageBox.Close)
 
+        try:
+            ui4.submitButton.clicked.disconnect()
+        except TypeError:
+            pass
         ui4.submitButton.clicked.connect(gettext)
 
     def addfriend(self):
         selectroot = self.treeWidget.currentItem()
-        menu_ui.show()
-        menu_ui.setWindowTitle("添加好友")
-        ui4.friendname.setText("好友名：")
+        menu_ui_add_friend.show()
+        menu_ui_add_friend.setWindowTitle("添加好友")
+        ui5.friendname.setText("好友名：")
 
         def gettext():
-            groupname = ui4.lineEdit.text()
-            if groupname != '':
-                root5 = QtWidgets.QTreeWidgetItem(selectroot)
-                root5.setText(0, groupname)
+            friendname = ui5.lineEdit.text()
+            if friendname != '':
+                root = QtWidgets.QTreeWidgetItem(selectroot)
+                root.setText(0, friendname)
                 font = QtGui.QFont()
                 font.setPointSize(10)
-                root5.setFont(0, font)
-                icon6 = QtGui.QIcon()
-                icon6.addPixmap(QtGui.QPixmap("image/chatbk.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                root5.setIcon(0, icon6)
-                menu_ui.close()
+                root.setFont(0, font)
+                icon = QtGui.QIcon()
+                icon.addPixmap(QtGui.QPixmap("image/chatbk.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                root.setIcon(0, icon)
+                menu_ui_add_friend.close()
+                ui5.lineEdit.clear()
             else:
-                QtWidgets.QMessageBox.information(self.MainWindow, '提示', '好友名不能为空!', QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
+                QtWidgets.QMessageBox.information(self.MainWindow, '提示', '好友名不能为空!',
+                                                  QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
                                                   QtWidgets.QMessageBox.Close)
 
-        ui4.submitButton.clicked.connect(gettext)
+        # 确保在连接前断开先前的连接
+        try:
+            ui5.submitButton.clicked.disconnect()
+        except TypeError:
+            pass
+        ui5.submitButton.clicked.connect(gettext)
 
     def deletefriend(self):
-        self.treeWidget.currentItem().setText(0, ' ')
-
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(""), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.treeWidget.currentItem().setIcon(0, icon)
-
+        item = self.treeWidget.currentItem()
+        item.parent().removeChild(item)
 
     def movefriend(self):
         pass
-
-
-
-
-

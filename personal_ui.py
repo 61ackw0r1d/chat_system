@@ -8,7 +8,6 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from threading_end import *
-from thread_result import MyThread
 from voice_code import Audio_Client, Audio_Server, _async_raise, stop_thread
 from file_exchange_class import file_send, file_recv
 
@@ -82,8 +81,6 @@ class Ui_Dialog(object):
         self.overVoiceButton.setObjectName("btn3")
 
         self.retranslateUi(MainWindow)
-        # self.pushButton_4.clicked.connect(Dialog.showMinimized)
-        # self.pushButton_3.clicked.connect(Dialog.close)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

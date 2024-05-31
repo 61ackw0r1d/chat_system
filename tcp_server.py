@@ -91,7 +91,7 @@ def isUser(db, logindata):
 def friend_get(user,friend_type,clientsock):
     db = connect_to_mysql()
     cursor = db.cursor()
-    query = "select friendID from ast_chatsystem.user_relationship where userID=%s and relationship=%s"
+    query = "select friendID from ast_chatsystem.users_relationship where userID=%s and relationship=%s"
     cursor.execute(query, (user,friend_type))
     result = cursor.fetchall()
     str=''
@@ -155,7 +155,6 @@ def login_db(logindata, clientsock):
             usercl.append(clientsock)
             login_bkinfo = 'true'
             user_client.append(usercl)
-            print(user_client)
             clientsock.send(login_bkinfo.encode())
 
             # change_alive(db, logindata)        # 修改为在线 / 暂时注释掉用于调试
@@ -351,11 +350,6 @@ if __name__ == "__main__":
     from netifaces import interfaces, ifaddresses, AF_INET
 
     ifaceName = interfaces()[2]
-    # address = [i['addr'] for i in ifaddresses(ifaceName).setdefault(AF_INET, [{'addr': 'No IP addr'}])][0]
-
-    # address='127.0.0.1'
-    # address='192.168.31.142'
-    # address = '192.168.31.90'
     s = socket(AF_INET, SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     address = s.getsockname()[0]

@@ -102,27 +102,7 @@ class Ui_MainWindowt(object):
         self.listWidget = QtWidgets.QListWidget(self.centralwidget)
         self.listWidget.setGeometry(QtCore.QRect(0, 171, 331, 451))
         self.listWidget.setIconSize(QtCore.QSize(45, 45))
-        self.listWidget.setObjectName("listWidget")
-        item = QtWidgets.QListWidgetItem()
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("image/软件架构课设.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item.setIcon(icon2)
-        self.listWidget.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("image/计算机组成原理.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item.setIcon(icon3)
-        self.listWidget.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("image/操作系统.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item.setIcon(icon4)
-        self.listWidget.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("image/计算机网络.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item.setIcon(icon5)
-        self.listWidget.addItem(item)
+
         self.treeWidget = QtWidgets.QTreeWidget(self.centralwidget)
         self.treeWidget.setGeometry(QtCore.QRect(-3, 171, 331, 441))
         self.treeWidget.setAutoScrollMargin(10)
@@ -134,53 +114,54 @@ class Ui_MainWindowt(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.treeWidget.headerItem().setFont(0, font)
-        item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
-        item_0.setToolTip(0, "")
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        item_0.setFont(0, font)
-        item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        item_1.setFont(0, font)
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap("image/头像1.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item_1.setIcon(0, icon6)
-        item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        icon7 = QtGui.QIcon()
-        icon7.addPixmap(QtGui.QPixmap("image/头像2.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item_1.setIcon(0, icon7)
-        item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap("image/头像3.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item_1.setIcon(0, icon8)
-        item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        item_0.setFont(0, font)
-        item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        item_1.setFont(0, font)
-        icon9 = QtGui.QIcon()
-        icon9.addPixmap(QtGui.QPixmap("image/头像4.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item_1.setIcon(0, icon9)
-        item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        item_0.setFont(0, font)
-        item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        icon10 = QtGui.QIcon()
-        icon10.addPixmap(QtGui.QPixmap("image/头像5.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item_1.setIcon(0, icon10)
-        item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        item_0.setFont(0, font)
-        item_1 = QtWidgets.QTreeWidgetItem(item_0)
-        icon11 = QtGui.QIcon()
-        icon11.addPixmap(QtGui.QPixmap("image/头像6.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item_1.setIcon(0, icon11)
+
+        # item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
+        # item_0.setToolTip(0, "")
+        # font = QtGui.QFont()
+        # font.setPointSize(11)
+        # item_0.setFont(0, font)
+        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
+        # font = QtGui.QFont()
+        # font.setPointSize(10)
+        # item_1.setFont(0, font)
+        # icon6 = QtGui.QIcon()
+        # icon6.addPixmap(QtGui.QPixmap("image/头像1.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # item_1.setIcon(0, icon6)
+        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
+        # icon7 = QtGui.QIcon()
+        # icon7.addPixmap(QtGui.QPixmap("image/头像2.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # item_1.setIcon(0, icon7)
+        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
+        # icon8 = QtGui.QIcon()
+        # icon8.addPixmap(QtGui.QPixmap("image/头像3.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # item_1.setIcon(0, icon8)
+        # item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
+        # font = QtGui.QFont()
+        # font.setPointSize(11)
+        # item_0.setFont(0, font)
+        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
+        # font = QtGui.QFont()
+        # font.setPointSize(10)
+        # item_1.setFont(0, font)
+        # icon9 = QtGui.QIcon()
+        # icon9.addPixmap(QtGui.QPixmap("image/头像4.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # item_1.setIcon(0, icon9)
+        # item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
+        # font = QtGui.QFont()
+        # font.setPointSize(11)
+        # item_0.setFont(0, font)
+        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
+        # icon10 = QtGui.QIcon()
+        # icon10.addPixmap(QtGui.QPixmap("image/头像5.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # item_1.setIcon(0, icon10)
+        # item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
+        # font = QtGui.QFont()
+        # font.setPointSize(11)
+        # item_0.setFont(0, font)
+        # item_1 = QtWidgets.QTreeWidgetItem(item_0)
+        # icon11 = QtGui.QIcon()
+        # icon11.addPixmap(QtGui.QPixmap("image/头像6.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # item_1.setIcon(0, icon11)
 
         #self.setCentralWidget(self.treeWidget)
         self.treeWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -228,37 +209,61 @@ class Ui_MainWindowt(object):
         self.listWidget.setSortingEnabled(False)  # 不排序
 
         #todo: 修改代码
-        item = self.listWidget.item(0)
-        item.setText(_translate("MainWindow", "软件架构课设"))
-        item = self.listWidget.item(1)
-        item.setText(_translate("MainWindow", "计算机组成原理"))
-        item = self.listWidget.item(2)
-        item.setText(_translate("MainWindow", "操作系统"))
-        item = self.listWidget.item(3)
-        item.setText(_translate("MainWindow", "计算机网络"))
+        db = connect_to_mysql()
+        cursor = db.cursor()
+
+        query = """
+            SELECT group_name 
+            FROM ast_chatsystem.groups_users_relationship AS gs
+            LEFT JOIN ast_chatsystem.groups AS g 
+            ON g.groupID = gs.groupID 
+            WHERE gs.userID = %s
+            """
+        cursor.execute(query, (self.username,))
+        ret = cursor.fetchall()
+        if ret:
+            for i in range(len(ret)):
+                item = QtWidgets.QListWidgetItem()
+                icon = QtGui.QIcon()
+                icon.addPixmap(QtGui.QPixmap("image/"+ret[i][0]+".png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                item.setIcon(icon)
+                item.setText(_translate("MainWindow", ret[i][0]))
+                self.listWidget.addItem(item)
         self.listWidget.setSortingEnabled(__sortingEnabled)
         self.treeWidget.headerItem().setText(0, _translate("MainWindow", "好友列表"))
         __sortingEnabled = self.treeWidget.isSortingEnabled()
         self.treeWidget.setSortingEnabled(False)
 
 
-        # login_user = '2021201501'
-        relationships = ['朋友', '家人', '同学', '好友']
-        db = connect_to_mysql()
-        cursor = db.cursor()
-        item_count = 0
-        for relation in relationships:
-            query = "select friendID from ast_chatsystem.user_relationship where userID=%s and relationship=%s"
+        self.relationships = []
+        query = "select relationship from ast_chatsystem.users_relationship where userID=%s group by relationship"
+        cursor.execute(query,(self.username,))
+        ret = cursor.fetchall()
+        if ret:
+            for element in ret:
+                self.relationships.append(element[0])
+
+
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        for relation in self.relationships:
+            query = "select friendID from ast_chatsystem.users_relationship where userID=%s and relationship=%s"
             cursor.execute(query,(self.username, relation))
             ret = cursor.fetchall()
             print("ret is", ret)
             if ret:
-                self.treeWidget.topLevelItem(item_count).setText(0, _translate("MainWindow", relation))
+                item_0 = QtWidgets.QTreeWidgetItem(self.treeWidget)
+                item_0.setFont(0, font)
+                item_0.setText(0, _translate("MainWindow", relation))
                 count = 0
                 for elem in ret:
-                    self.treeWidget.topLevelItem(item_count).child(count).setText(0, _translate("MainWindow", elem[0]))
+                    item_1 = QtWidgets.QTreeWidgetItem(item_0)
+                    item_1.setFont(0, font)
+                    item_1.setText(0, _translate("MainWindow", elem[0]))
+                    icon = QtGui.QIcon()
+                    icon.addPixmap(QtGui.QPixmap("image/"+elem[0]+".jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                    item_1.setIcon(0, icon)
                     count += 1
-                item_count += 1
             else:
                 print("nothing in his/her", relation)
 
@@ -304,7 +309,7 @@ class Ui_MainWindowt(object):
         self.user = self.label.text()
         self.personaltitle = item.text(0)
         print("in qq.py", self.user, self.personaltitle)
-        if self.personaltitle!='朋友' and self.personaltitle!='同学' and self.personaltitle!='家人' and self.personaltitle!='好友':
+        if self.personaltitle not in self.relationships:
 
 
             personalchat_ui = QtWidgets.QWidget()

@@ -9,7 +9,6 @@ client_list = []  # 已登录的用户
 
 user_list = []
 
-alive_user = 0
 group_list = []
 # 已经在线的用户
 user_client = []
@@ -53,7 +52,6 @@ def getinfo(db):
         print("err")
     # print(user_list)
     # user_l = len(user_list)
-    print("###", alive_user)
     return retdata()
 
 
@@ -140,8 +138,6 @@ def login_db(logindata, clientsock):
             login_bkinfo = 'true'
             user_client.append(usercl)
             clientsock.send(login_bkinfo.encode())
-            global alive_user
-            alive_user+=1
             # change_alive(db, logindata)        # 修改为在线 / 暂时注释掉用于调试
             # todo 调试完成后重新打开注释
     else:

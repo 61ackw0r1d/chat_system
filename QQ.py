@@ -309,11 +309,11 @@ class Ui_MainWindowt(object):
         self.user = self.label.text()
         self.personaltitle = item.text(0)
         print("in qq.py", self.user, self.personaltitle)
+        socket=self.s
         if self.personaltitle not in self.relationships:
 
-
             personalchat_ui = QtWidgets.QWidget()
-            ui3 = personal_ui.Ui_Dialog(self.s, self.user, self.personaltitle)
+            ui3 = personal_ui.Ui_Dialog(socket, self.user, self.personaltitle)
             ui3.setupUi(personalchat_ui)
             personalchat_ui.show()
 

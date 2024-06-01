@@ -4,26 +4,33 @@ from chatroom_ui import connect_to_mysql
 import personal_ui
 from Dialog_add import Ui_Dialog
 
-menu_ui_add_group = QtWidgets.QWidget()
-ui4 = Ui_Dialog()
-ui4.setupUi(menu_ui_add_group)
-
-menu_ui_add_friend = QtWidgets.QWidget()
-ui5 = Ui_Dialog()
-ui5.setupUi(menu_ui_add_friend)
-
 class Ui_MainWindowt(object):
-
     def __init__(self, s):
         self.s = s
         self.buffsize = 1024
-
+        self.db=connect_to_mysql()
     def setupUit(self, MainWindow):
         self.MainWindow = MainWindow
         self.MainWindow.setObjectName("MainWindow")
         self.MainWindow.resize(326, 627)
         self.MainWindow.setMinimumSize(QtCore.QSize(326, 627))
         self.MainWindow.setMaximumSize(QtCore.QSize(326, 627))
+
+        self.menu_ui_add_group = QtWidgets.QWidget()
+        self.add_relationship_ui = Ui_Dialog()
+        self.add_relationship_ui.setupUi(self.menu_ui_add_group)
+        self.menu_ui_add_group.setWindowTitle("添加分组")
+        self.add_relationship_ui.friendname.setText("新组名：")
+
+        self.menu_ui_add_friend = QtWidgets.QWidget()
+        self.add_friend_ui = Ui_Dialog()
+        self.add_friend_ui.setupUi(self.menu_ui_add_friend)
+        self.menu_ui_add_friend.setWindowTitle("添加好友")
+        self.add_friend_ui.friendname.setText("好友名：")
+
+        self.menu_ui_move = QtWidgets.QWidget()
+        self.move_ui = Ui_Dialog()
+        self.move_ui.setupUi(self.menu_ui_move)
 
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("image/QQ1.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -111,7 +118,6 @@ class Ui_MainWindowt(object):
         self.listWidget.itemClicked.connect(self.group_req)
         self.treeWidget.itemClicked.connect(self.personal)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
     def closeMainwindow_and_changeAlive(self):
         self.MainWindow.close()
         self.close()
@@ -132,9 +138,7 @@ class Ui_MainWindowt(object):
         __sortingEnabled = self.listWidget.isSortingEnabled()
         self.listWidget.setSortingEnabled(False)  # 不排序
 
-        db = connect_to_mysql()
-        cursor = db.cursor()
-
+        cursor = self.db.cursor()
         query = """
             SELECT group_name 
             FROM ast_chatsystem.groups_users_relationship AS gs
@@ -158,7 +162,7 @@ class Ui_MainWindowt(object):
         self.treeWidget.setSortingEnabled(False)
 
         self.relationships = []
-        query = "select relationship from ast_chatsystem.users_relationship where userID=%s group by relationship"
+        query = "select relationship from users_relationship where userID=%s group by relationship"
         cursor.execute(query, (self.username,))
         ret = cursor.fetchall()
         if ret:
@@ -168,7 +172,7 @@ class Ui_MainWindowt(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         for relation in self.relationships:
-            query = "select friendID from ast_chatsystem.users_relationship where userID=%s and relationship=%s"
+            query = "select friendID from users_relationship where userID=%s and relationship=%s"
             cursor.execute(query, (self.username, relation))
             ret = cursor.fetchall()
             print("ret is", ret)
@@ -181,17 +185,21 @@ class Ui_MainWindowt(object):
                     item_1.setFont(0, font)
                     item_1.setText(0, _translate("MainWindow", elem[0]))
                     icon = QtGui.QIcon()
-                    icon.addPixmap(QtGui.QPixmap("image/" + elem[0] + ".jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                    path="image/" + elem[0] + ".jpg"
+                    try:
+                        file=open(path,"r")
+                        file.close()
+                    except:
+                        path="image/icon.jpg"
+                    icon.addPixmap(QtGui.QPixmap(path), QtGui.QIcon.Normal, QtGui.QIcon.Off)
                     item_1.setIcon(0, icon)
             else:
                 print("nothing in his/her", relation)
-
+        cursor.close()
         self.treeWidget.setSortingEnabled(__sortingEnabled)
-
     def friend_recv(self):
         recv_info = self.recv(self.buffsize).decode("utf-8")
         print(recv_info)
-
     def group_req(self, item):
         self.grouptitle = item.text()
         print(item.text())
@@ -202,7 +210,6 @@ class Ui_MainWindowt(object):
         group_chat = '$%'.join(group_chat)
         self.s.send(group_chat.encode())
         self.group_setup(item)
-
     def group_setup(self, item):
         self.grouptitle = item.text()
         self.user = self.label.text()
@@ -224,7 +231,6 @@ class Ui_MainWindowt(object):
         ui2.recv_thead()
         ui2.dj_send()
         ui2.dj_quit(groupchat_ui)
-
     def personal(self, item):
         self.user = self.label.text()
         self.personaltitle = item.text(0)
@@ -245,7 +251,6 @@ class Ui_MainWindowt(object):
             ui3.voice_chat_down()
             ui3.quit_window(personalchat_ui)
             ui3.textBrowser.clear()
-
     def menuevent(self):
         self.treetext = self.treeWidget.currentItem().text(0)
 
@@ -253,7 +258,7 @@ class Ui_MainWindowt(object):
             pmenu1 = QtWidgets.QMenu(self.MainWindow)
             AddGroupAct = QtWidgets.QAction("添加分组", pmenu1)
             pmenu1.addAction(AddGroupAct)
-            AddGroupAct.triggered.connect(self.addgroup)
+            AddGroupAct.triggered.connect(self.addrelationship)
 
             AddFriendAct = QtWidgets.QAction("添加好友", pmenu1)
             pmenu1.addAction(AddFriendAct)
@@ -266,78 +271,118 @@ class Ui_MainWindowt(object):
             pmenu2.addAction(deletem)
             deletem.triggered.connect(self.deletefriend)
 
-            pSubMenu = QtWidgets.QMenu("转移联系人至", pmenu2)
-            pm1 = QtWidgets.QAction("朋友", pSubMenu)
-            pSubMenu.addAction(pm1)
-            pm1.triggered.connect(self.movefriend)
-            pm2 = QtWidgets.QAction("家人", pSubMenu)
-            pSubMenu.addAction(pm2)
-            pm2.triggered.connect(self.movefriend)
-            pm3 = QtWidgets.QAction("同学", pSubMenu)
-            pSubMenu.addAction(pm3)
-            pm3.triggered.connect(self.movefriend)
-            pm4 = QtWidgets.QAction("好友", pSubMenu)
-            pSubMenu.addAction(pm4)
-            pm4.triggered.connect(self.movefriend)
-            pmenu2.addMenu(pSubMenu)
+            movem = QtWidgets.QAction("转移联系人至", pmenu2)
+            pmenu2.addAction(movem)
+            movem.triggered.connect(self.movefriend)
+
             pmenu2.exec_(QtGui.QCursor.pos())
-
-    def addgroup(self):
-        menu_ui_add_group.show()
-        menu_ui_add_group.setWindowTitle("添加分组")
-        ui4.friendname.setText("新组名：")
-
+    def addrelationship(self):
+        self.menu_ui_add_group.show()
         def gettext():
-            groupname = ui4.lineEdit.text()
-            if groupname != '':
-                root5 = QtWidgets.QTreeWidgetItem(self.treeWidget)
-                root5.setText(0, groupname)
-                self.treeWidget.addTopLevelItem(root5)
-                menu_ui_add_group.close()
-            else:
-                QtWidgets.QMessageBox.information(self.MainWindow, '提示', '组名不能为空!', QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
+            relationship = self.add_relationship_ui.lineEdit.text()
+            if relationship != '':
+                if relationship not in self.relationships:
+                    item = QtWidgets.QTreeWidgetItem(self.treeWidget)
+                    item.setText(0, relationship)
+                    self.treeWidget.addTopLevelItem(item)
+                    self.menu_ui_add_group.close()
+                    self.add_relationship_ui.lineEdit.clear()
+                    self.relationships.append(relationship)
+                else:QtWidgets.QMessageBox.information(self.MainWindow, '提示', '该分组已存在!',
+                                                      QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
+                                                      QtWidgets.QMessageBox.Close)
+            else:QtWidgets.QMessageBox.information(self.MainWindow, '提示', '组名不能为空!', QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
                                                   QtWidgets.QMessageBox.Close)
-
         try:
-            ui4.submitButton.clicked.disconnect()
+            self.add_relationship_ui.submitButton.clicked.disconnect()
         except TypeError:
             pass
-        ui4.submitButton.clicked.connect(gettext)
-
+        self.add_relationship_ui.submitButton.clicked.connect(gettext)
     def addfriend(self):
-        selectroot = self.treeWidget.currentItem()
-        menu_ui_add_friend.show()
-        menu_ui_add_friend.setWindowTitle("添加好友")
-        ui5.friendname.setText("好友名：")
-
+        self.menu_ui_add_friend.show()
         def gettext():
-            friendname = ui5.lineEdit.text()
+            selectroot = self.treeWidget.currentItem()
+            friendname = self.add_friend_ui.lineEdit.text()
             if friendname != '':
-                root = QtWidgets.QTreeWidgetItem(selectroot)
-                root.setText(0, friendname)
-                font = QtGui.QFont()
-                font.setPointSize(10)
-                root.setFont(0, font)
-                icon = QtGui.QIcon()
-                icon.addPixmap(QtGui.QPixmap("image/chatbk.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                root.setIcon(0, icon)
-                menu_ui_add_friend.close()
-                ui5.lineEdit.clear()
+                cursor = self.db.cursor()
+                try:
+                    item = QtWidgets.QTreeWidgetItem(selectroot)
+                    item.setText(0, friendname)
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    item.setFont(0, font)
+                    icon = QtGui.QIcon()
+                    icon.addPixmap(QtGui.QPixmap("image/chatbk.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                    query = "INSERT INTO users_relationship (userID,friendID,relationship) VALUES (%s, %s,%s)"
+                    cursor.execute(query, (self.username,friendname,selectroot.text(0)))
+                    self.db.commit()
+                    item.setIcon(0, icon)
+                    self.menu_ui_add_friend.close()
+                    self.add_friend_ui.lineEdit.clear()
+                except Exception as e:
+                    print(e)
+                    QtWidgets.QMessageBox.information(self.MainWindow, '提示', '好友添加失败',
+                                                      QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
+                                                      QtWidgets.QMessageBox.Close)
+                    item.parent().removeChild(item)
+                cursor.close()
             else:
                 QtWidgets.QMessageBox.information(self.MainWindow, '提示', '好友名不能为空!',
                                                   QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
                                                   QtWidgets.QMessageBox.Close)
-
         # 确保在连接前断开先前的连接
         try:
-            ui5.submitButton.clicked.disconnect()
-        except TypeError:
+            self.add_friend_ui.submitButton.clicked.disconnect()
+        except Exception:
             pass
-        ui5.submitButton.clicked.connect(gettext)
-
+        self.add_friend_ui.submitButton.clicked.connect(gettext)
     def deletefriend(self):
         item = self.treeWidget.currentItem()
-        item.parent().removeChild(item)
-
+        cursor = self.db.cursor()
+        try:
+            query = "DELETE FROM users_relationship WHERE userID=%s AND friendID=%s AND relationship=%s"
+            cursor.execute(query, (self.username, item.text(0), item.parent().text(0)))
+            self.db.commit()
+            item.parent().removeChild(item)
+        except Exception as e:
+            QtWidgets.QMessageBox.information(self.MainWindow, '提示', '删除失败',
+                                              QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
+                                              QtWidgets.QMessageBox.Close)
+        cursor.close()
     def movefriend(self):
-        pass
+        self.menu_ui_move.show()
+        def move():
+            item = self.treeWidget.currentItem()
+            target = self.move_ui.lineEdit.text()
+            if target in self.relationships:
+                cursor = self.db.cursor()
+                try:
+                    query = "DELETE FROM users_relationship WHERE userID=%s AND friendID=%s AND relationship=%s"
+                    cursor.execute(query, (self.username, item.text(0), item.parent().text(0)))
+                    query = "INSERT INTO users_relationship (userID,friendID,relationship) VALUES (%s, %s,%s)"
+                    cursor.execute(query, (self.username, item.text(0), target))
+                    self.db.commit()
+                    item.parent().removeChild(item)
+                    try:
+                        for i in range(self.treeWidget.topLevelItemCount()):
+                            root = self.treeWidget.topLevelItem(i)
+                            if root.text(0)==target:
+                                root.addChild(item)
+                                break
+                        self.menu_ui_move.close()
+                    except Exception as e:
+                        print(e)
+                except Exception as e:
+                    QtWidgets.QMessageBox.information(self.MainWindow, '提示', '移动失败',
+                                                      QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
+                                                      QtWidgets.QMessageBox.Close)
+                cursor.close()
+            else:
+                QtWidgets.QMessageBox.information(self.MainWindow, '提示', '分组不存在',
+                                                  QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
+                                                  QtWidgets.QMessageBox.Close)
+        try:
+            self.move_ui.submitButton.clicked.disconnect()
+        except Exception:
+            pass
+        self.move_ui.submitButton.clicked.connect(move)

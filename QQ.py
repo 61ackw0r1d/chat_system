@@ -9,6 +9,7 @@ class Ui_MainWindowt(object):
         self.s = s
         self.buffsize = 1024
         self.db=connect_to_mysql()
+
     def setupUit(self, MainWindow):
         self.MainWindow = MainWindow
         self.MainWindow.setObjectName("MainWindow")
@@ -59,16 +60,6 @@ class Ui_MainWindowt(object):
         self.label.setStyleSheet("background-color: rgb(85, 255, 255);\n""color: rgb(255, 255, 255);\n"
 "background-color: rgb(0, 85, 255);\n")
         self.label.setObjectName("label")
-        self.closeButton = QtWidgets.QPushButton(self.frame)
-        self.closeButton.setGeometry(QtCore.QRect(294, 0, 31, 23))
-        self.closeButton.setStyleSheet("color: rgb(255, 255, 255);\n"
-"border-color: rgb(0, 85, 255);")
-        self.closeButton.setObjectName("pushButton_3")
-        self.hideButton = QtWidgets.QPushButton(self.frame)
-        self.hideButton.setGeometry(QtCore.QRect(260, 0, 31, 23))
-        self.hideButton.setStyleSheet("color: rgb(255, 255, 255);\n"
-"border-color: rgb(0, 85, 255);")
-        self.hideButton.setObjectName("pushButton_4")
         self.frame_3 = QtWidgets.QFrame(self.centralwidget)
         self.frame_3.setGeometry(QtCore.QRect(0, 140, 326, 35))
         self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -107,22 +98,35 @@ class Ui_MainWindowt(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
 
-        self.closeButton.clicked.connect(self.closeMainwindow_and_changeAlive)
-
         self.friendButton.clicked.connect(self.listWidget.hide)
         self.groupButton.clicked.connect(self.listWidget.show)
         self.friendButton.clicked.connect(self.treeWidget.show)
         self.groupButton.clicked.connect(self.treeWidget.hide)
-        self.hideButton.clicked.connect(MainWindow.showMinimized)
 
         self.listWidget.itemClicked.connect(self.group_req)
         self.treeWidget.itemClicked.connect(self.personal)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.MainWindow.closeEvent = self.closeEvent
+
+    def closeEvent(self, event):
+        try:
+            reply = QtWidgets.QMessageBox.question(
+                self.MainWindow, '提示', "确定要退出吗?",
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No
+            )
+            if reply == QtWidgets.QMessageBox.Yes:
+                self.closeMainwindow_and_changeAlive()
+                event.accept()
+            else:
+                event.ignore()
+        except Exception as e:
+            print(e)
+            event.ignore()
+
     def closeMainwindow_and_changeAlive(self):
+        send_list = f"close$%{self.username}"
+        self.s.send(send_list.encode())
         self.MainWindow.close()
-        self.close()
-        send_list = f"close$%{self.username}$%close"
-        # self.s.send(send_list.encode())
 
     def retranslateUi(self, MainWindow, username):
         self.username = username
@@ -131,8 +135,6 @@ class Ui_MainWindowt(object):
         self.MainWindow.setWindowTitle(_translate("MainWindow", "QQ"))
         self.label.setText(_translate("MainWindow", "*******************************************************"))
 
-        self.closeButton.setText(_translate("MainWindow", "关闭"))
-        self.hideButton.setText(_translate("MainWindow", "隐藏"))
         self.friendButton.setText(_translate("MainWindow", "好友"))
         self.groupButton.setText(_translate("MainWindow", "群聊"))
         __sortingEnabled = self.listWidget.isSortingEnabled()
@@ -197,9 +199,11 @@ class Ui_MainWindowt(object):
                 print("nothing in his/her", relation)
         cursor.close()
         self.treeWidget.setSortingEnabled(__sortingEnabled)
+
     def friend_recv(self):
         recv_info = self.recv(self.buffsize).decode("utf-8")
         print(recv_info)
+
     def group_req(self, item):
         self.grouptitle = item.text()
         print(item.text())
@@ -210,6 +214,7 @@ class Ui_MainWindowt(object):
         group_chat = '$%'.join(group_chat)
         self.s.send(group_chat.encode())
         self.group_setup(item)
+
     def group_setup(self, item):
         self.grouptitle = item.text()
         self.user = self.label.text()
@@ -231,6 +236,7 @@ class Ui_MainWindowt(object):
         ui2.recv_thead()
         ui2.dj_send()
         ui2.dj_quit(groupchat_ui)
+
     def personal(self, item):
         self.user = self.label.text()
         self.personaltitle = item.text(0)
@@ -251,6 +257,7 @@ class Ui_MainWindowt(object):
             ui3.voice_chat_down()
             ui3.quit_window(personalchat_ui)
             ui3.textBrowser.clear()
+
     def menuevent(self):
         self.treetext = self.treeWidget.currentItem().text(0)
 
@@ -276,6 +283,7 @@ class Ui_MainWindowt(object):
             movem.triggered.connect(self.movefriend)
 
             pmenu2.exec_(QtGui.QCursor.pos())
+
     def addrelationship(self):
         self.menu_ui_add_group.show()
         def gettext():
@@ -298,6 +306,7 @@ class Ui_MainWindowt(object):
         except TypeError:
             pass
         self.add_relationship_ui.submitButton.clicked.connect(gettext)
+
     def addfriend(self):
         self.menu_ui_add_friend.show()
         def gettext():
@@ -336,6 +345,7 @@ class Ui_MainWindowt(object):
         except Exception:
             pass
         self.add_friend_ui.submitButton.clicked.connect(gettext)
+
     def deletefriend(self):
         item = self.treeWidget.currentItem()
         cursor = self.db.cursor()
@@ -349,6 +359,7 @@ class Ui_MainWindowt(object):
                                               QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Close,
                                               QtWidgets.QMessageBox.Close)
         cursor.close()
+
     def movefriend(self):
         self.menu_ui_move.show()
         def move():

@@ -138,7 +138,7 @@ def login_db(logindata, clientsock):
             login_bkinfo = 'true'
             user_client.append(usercl)
             clientsock.send(login_bkinfo.encode())
-            # change_alive(db, logindata)        # 修改为在线 / 暂时注释掉用于调试
+            change_alive(db, logindata)        # 修改为在线 / 暂时注释掉用于调试
             # todo 调试完成后重新打开注释
     else:
         # 数据库查不到

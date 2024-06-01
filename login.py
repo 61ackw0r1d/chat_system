@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'login.ui'
-#
-# Created by: PyQt5 UI code generator 5.11.2
-
-# WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QFormLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 from socket import *
@@ -89,7 +83,6 @@ class Ui_MainWindow(QWidget):
         self.accountLabel.setText(_translate("MainWindow", "账号："))
         self.passwordLabel.setText(_translate("MainWindow", "密码："))
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
 
     def login(self):
         login_info=['login']
@@ -191,7 +184,6 @@ class RegistrationForm(QWidget):
         elif str(recv_info) == 'false':
             print("注册失败")
             QMessageBox.warning(self, '失败', '此账号已注册!')
-
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

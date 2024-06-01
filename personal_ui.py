@@ -42,7 +42,7 @@ class Ui_Dialog(object):
         self.MainWindow.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.frame = QtWidgets.QFrame(self.MainWindow)
         self.frame.setGeometry(QtCore.QRect(0, 0, 731, 41))
-        self.frame.setStyleSheet("background-color: rgb(255, 170, 127);")
+        self.frame.setStyleSheet("background-color: rgb(250, 200, 224);")
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
@@ -60,12 +60,12 @@ class Ui_Dialog(object):
 
         self.closeButton = QtWidgets.QPushButton(self.MainWindow)
         self.closeButton.setGeometry(QtCore.QRect(10, 510, 81, 31))
-        self.closeButton.setStyleSheet("background-color: rgb(255, 170, 127);\n""color: rgb(255, 255, 255);")
+        self.closeButton.setStyleSheet("background-color: rgb(7, 193, 96);\n""color: rgb(255, 255, 255);")
         self.closeButton.setObjectName("pushButton")
 
         self.sendButton = QtWidgets.QPushButton(self.MainWindow)
         self.sendButton.setGeometry(QtCore.QRect(420, 510, 81, 31))
-        self.sendButton.setStyleSheet("background-color: rgb(255, 170, 127);\n""color: rgb(255, 255, 255);")
+        self.sendButton.setStyleSheet("background-color: rgb(7, 193, 96);\n""color: rgb(255, 255, 255);")
         self.sendButton.setObjectName("pushButton_2")
 
         self.voiceButton = QtWidgets.QPushButton(self.MainWindow)

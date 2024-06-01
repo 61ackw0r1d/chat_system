@@ -65,7 +65,7 @@ class file_recv:
         # self.host = '127.0.0.1'
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
-        self.host = s.getscockname()[0]
+        self.host = s.getsockname()[0]
         '''设置端口'''
         self.port = 7788
 

@@ -9,8 +9,8 @@ class Ui_MainWindow(QWidget):
 
     def tcp_start(self):
         # address = '127.0.0.1'
-        address = '192.168.31.142'
-        # address = '192.168.31.90'
+        # address = '192.168.31.142'
+        address = '192.168.31.90'
         port = 8000
         self.buffsize = 1024
         self.s = socket(AF_INET, SOCK_STREAM)
